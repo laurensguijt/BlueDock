@@ -10,6 +10,7 @@ namespace BlueDock.ViewModels
 {
     public sealed class MainViewModel : ObservableObject
     {
+        private readonly BluetoothService _bluetooth;
         private readonly RadioService _radio;
         private readonly SettingsService _settings;
         private readonly Dictionary<string, DeviceViewModel> _byId = new();
@@ -17,6 +18,7 @@ namespace BlueDock.ViewModels
 
         public MainViewModel(BluetoothService bluetooth, RadioService radio, SettingsService settings)
         {
+            _bluetooth = bluetooth;
             _radio = radio;
             _settings = settings;
 
@@ -140,7 +142,7 @@ namespace BlueDock.ViewModels
         {
             if (!_byId.TryGetValue(s.Id, out var vm))
             {
-                vm = new DeviceViewModel(s);
+                vm = new DeviceViewModel(_bluetooth, s);
                 _byId[s.Id] = vm;
             }
             else

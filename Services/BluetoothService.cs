@@ -7,12 +7,29 @@ using Windows.Devices.Bluetooth;
 using Windows.Devices.Bluetooth.GenericAttributeProfile;
 using Windows.Devices.Enumeration;
 using Windows.Storage.Streams;
+using BlueDock.Interop;
 
 namespace BlueDock.Services
 {
     public enum DeviceKind { Other, Headphones, Speaker, Mouse, Keyboard, Phone, Gamepad, Computer }
 
-    public sealed record DeviceSnapshot(string Id, string Name, bool IsConnected, DeviceKind Kind, int? Battery, bool IsLowEnergy);
+    /// <summary>
+    /// How far we can steer a device's connection. Windows has no general "connect this paired
+    /// device" API, so this says what is actually possible per device instead of offering a
+    /// button that would silently do nothing.
+    /// </summary>
+    public enum ConnectAbility
+    {
+        /// <summary>No supported way to connect or disconnect (classic non-audio devices, e.g. a phone).</summary>
+        None,
+        /// <summary>Audio device: connect and disconnect through the Core Audio KS one shot properties.</summary>
+        AudioToggle,
+        /// <summary>LE device: a GATT session can bring it up, but we cannot force it down again.</summary>
+        LeConnectOnly,
+    }
+
+    public sealed record DeviceSnapshot(string Id, string Name, bool IsConnected, DeviceKind Kind, int? Battery,
+                                        bool IsLowEnergy, ConnectAbility Ability);
 
     public sealed class ConnectionChangedEventArgs : EventArgs
     {
@@ -53,12 +70,29 @@ namespace BlueDock.Services
             public int? Battery;
             public bool IsLowEnergy;
             public bool LowBatteryNotified;
+            public ConnectAbility Ability;
 
-            public DeviceSnapshot Snapshot() => new(Id, Name, IsConnected, Kind, Battery, IsLowEnergy);
+            public DeviceSnapshot Snapshot() => new(Id, Name, IsConnected, Kind, Battery, IsLowEnergy, Ability);
+        }
+
+        /// <summary>An LE connection we hold open ourselves; disposing it lets the link drop again.</summary>
+        private sealed class LeLink : IDisposable
+        {
+            public BluetoothLEDevice? Device;
+            public GattSession? Session;
+
+            public void Dispose()
+            {
+                try { Session?.Dispose(); } catch { /* already gone */ }
+                try { Device?.Dispose(); } catch { /* already gone */ }
+                Session = null;
+                Device = null;
+            }
         }
 
         private readonly object _lock = new();
         private readonly Dictionary<string, Entry> _devices = new();
+        private readonly Dictionary<string, LeLink> _leLinks = new();
         private DeviceWatcher? _classic;
         private DeviceWatcher? _le;
         private int _enumerationsCompleted;
@@ -87,6 +121,13 @@ namespace BlueDock.Services
         public void Stop()
         {
             _batteryTimer?.Dispose();
+
+            lock (_lock)
+            {
+                foreach (var link in _leLinks.Values) link.Dispose();
+                _leLinks.Clear();
+            }
+
             foreach (var w in new[] { _classic, _le })
             {
                 if (w == null) continue;
@@ -125,6 +166,7 @@ namespace BlueDock.Services
 
             DeviceAdded?.Invoke(this, entry.Snapshot());
             _ = ResolveKindAsync(entry);
+            _ = ResolveAbilityAsync(entry);
             if (entry.IsConnected)
                 _ = RefreshBatteryAsync(entry);
         }
@@ -162,16 +204,143 @@ namespace BlueDock.Services
 
                 if (entry.IsConnected)
                     _ = RefreshBatteryAfterConnectAsync(entry);
+                else
+                    DropLeLink(entry.Id);   // a stale session would block a later connect attempt
             }
         }
 
         private void OnRemoved(string id)
         {
+            LeLink? link;
             lock (_lock)
             {
                 if (!_devices.Remove(id)) return;
+                if (_leLinks.Remove(id, out link)) { /* disposed below, outside the lock */ }
             }
+            link?.Dispose();
             DeviceRemoved?.Invoke(this, id);
+        }
+
+        // ---------- Connect / disconnect ----------
+
+        /// <summary>
+        /// Connects or disconnects a paired device, and waits for Windows to confirm the new state.
+        /// Returns false when the device cannot be steered, when the request is rejected, or when
+        /// the device never reaches the requested state (switched off, out of range).
+        /// </summary>
+        public async Task<bool> SetConnectedAsync(string id, bool connect)
+        {
+            Entry? entry;
+            lock (_lock)
+            {
+                if (!_devices.TryGetValue(id, out entry)) return false;
+                if (entry.IsConnected == connect) return true;
+            }
+
+            switch (entry.Ability)
+            {
+                case ConnectAbility.AudioToggle:
+                    if (entry.ContainerId is not Guid container) return false;
+                    // COM enumeration plus a driver round trip: keep it off the UI thread.
+                    if (!await Task.Run(() => CoreAudio.SendOneShot(container, connect))) return false;
+                    break;
+
+                case ConnectAbility.LeConnectOnly:
+                    if (!connect) return false;
+                    if (!await OpenLeLinkAsync(entry)) return false;
+                    break;
+
+                default:
+                    return false;
+            }
+
+            // The KS property and the GATT session both only *request* a state; the DeviceWatcher
+            // tells us what actually happened.
+            bool reached = await WaitForStateAsync(entry, connect, TimeSpan.FromSeconds(connect ? 12 : 8));
+
+            if (!reached && connect)
+                DropLeLink(entry.Id);   // do not keep a session open for a device that never came up
+
+            return reached;
+        }
+
+        /// <summary>Holds a GATT session with MaintainConnection, which asks Windows to bring the LE link up.</summary>
+        private async Task<bool> OpenLeLinkAsync(Entry entry)
+        {
+            var link = new LeLink();
+            try
+            {
+                link.Device = await BluetoothLEDevice.FromIdAsync(entry.Id);
+                if (link.Device == null) { link.Dispose(); return false; }
+
+                link.Session = await GattSession.FromDeviceIdAsync(link.Device.BluetoothDeviceId);
+                if (link.Session == null) { link.Dispose(); return false; }
+
+                link.Session.MaintainConnection = true;
+            }
+            catch
+            {
+                link.Dispose();
+                return false;
+            }
+
+            LeLink? previous;
+            lock (_lock)
+            {
+                _leLinks.Remove(entry.Id, out previous);
+                _leLinks[entry.Id] = link;
+            }
+            previous?.Dispose();
+            return true;
+        }
+
+        private void DropLeLink(string id)
+        {
+            LeLink? link;
+            lock (_lock)
+            {
+                if (!_leLinks.Remove(id, out link)) return;
+            }
+            link?.Dispose();
+        }
+
+        private async Task<bool> WaitForStateAsync(Entry entry, bool desired, TimeSpan timeout)
+        {
+            var deadline = DateTime.UtcNow + timeout;
+            while (true)
+            {
+                lock (_lock)
+                {
+                    if (entry.IsConnected == desired) return true;
+                }
+                if (DateTime.UtcNow >= deadline) return false;
+                await Task.Delay(250);
+            }
+        }
+
+        private async Task ResolveAbilityAsync(Entry entry)
+        {
+            ConnectAbility ability = ConnectAbility.None;
+            try
+            {
+                if (entry.ContainerId is Guid container
+                    && await Task.Run(() => CoreAudio.HasAudioEndpoint(container)))
+                {
+                    ability = ConnectAbility.AudioToggle;
+                }
+                else if (entry.IsLowEnergy)
+                {
+                    ability = ConnectAbility.LeConnectOnly;
+                }
+            }
+            catch
+            {
+                ability = ConnectAbility.None;
+            }
+
+            if (ability == entry.Ability) return;
+            entry.Ability = ability;
+            DeviceUpdated?.Invoke(this, entry.Snapshot());
         }
 
         // ---------- Device type (icon) ----------

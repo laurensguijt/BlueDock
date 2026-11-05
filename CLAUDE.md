@@ -11,6 +11,12 @@ Windows system-tray Bluetooth popup (WPF, .NET 8). See README.md for features an
 - Services/BluetoothService.cs: DeviceWatchers (Classic + LE, AssociationEndpoint), battery via DEVPKEY_Bluetooth_Battery and GATT 0x180F. Events fire on background threads; MainViewModel marshals to the UI thread.
 - Themes: Shared.xaml (styles, all DynamicResource) + one active theme (Fluent / Glass / Tiles) swapped at merged-dictionary index 1 by ThemeService. Every theme must define the same resource keys.
 - Interop/WindowEffects.cs: DWM Mica/Acrylic (build >= 22621), fallback brush otherwise.
+- Interop/CoreAudio.cs: COM interop reaching the KS filter behind a Bluetooth audio endpoint
+  (IMMDevice -> IDeviceTopology -> IConnector -> IKsControl). IKsControl is NOT available on the
+  endpoint itself; the topology must be walked to the filter first. Used for connect/disconnect.
+- Connect/disconnect: BluetoothService.SetConnectedAsync. ConnectAbility per device decides what
+  the UI offers (audio = both ways, LE = connect only, rest = nothing). Both mechanisms only
+  request a state; the result is confirmed by waiting on the DeviceWatcher, never by the HRESULT.
 - Settings: %AppData%\BlueDock\settings.json
 
 ## Conventions

@@ -62,14 +62,20 @@
     <SolidColorBrush x:Key="Brush.Tile" Color="#FFFFFFFF" />
     <SolidColorBrush x:Key="Brush.TileBorder" Color="#FFE6E8F0" />
 
+    <!-- Action button on a device card; sits on the accent coloured connected tile -->
+    <SolidColorBrush x:Key="Brush.DeviceButton" Color="#26FFFFFF" />
+    <SolidColorBrush x:Key="Brush.DeviceButtonBorder" Color="#80FFFFFF" />
+    <SolidColorBrush x:Key="Brush.DeviceButtonForeground" Color="#FFFFFFFF" />
+
     <ItemsPanelTemplate x:Key="Panel.Connected"><UniformGrid Columns="2" /></ItemsPanelTemplate>
     <ItemsPanelTemplate x:Key="Panel.Paired"><UniformGrid Columns="2" /></ItemsPanelTemplate>
 
     <DataTemplate x:Key="Template.ConnectedItem">
-        <Border Background="{DynamicResource Brush.Accent}" CornerRadius="18" Padding="14" Margin="5" Height="122">
+        <Border Background="{DynamicResource Brush.Accent}" CornerRadius="18" Padding="14" Margin="5" Height="140">
             <Grid>
                 <Grid.RowDefinitions>
                     <RowDefinition Height="*" />
+                    <RowDefinition Height="Auto" />
                     <RowDefinition Height="Auto" />
                 </Grid.RowDefinitions>
                 <TextBlock Text="{Binding Glyph}" FontFamily="{DynamicResource IconFont}" FontSize="22"
@@ -84,6 +90,12 @@
                     <TextBlock Text="{Binding Name}" FontSize="14" FontWeight="SemiBold" Foreground="White" TextTrimming="CharacterEllipsis" />
                     <TextBlock Text="{Binding StatusText}" FontSize="12" Foreground="#E6FFFFFF" />
                 </StackPanel>
+                <Button Grid.Row="2" Style="{DynamicResource Style.DeviceButton}" Margin="0,8,0,0"
+                        HorizontalAlignment="Left" Content="{Binding ActionText}"
+                        Command="{Binding ToggleConnectionCommand}"
+                        Visibility="{Binding CanToggle, Converter={x:Static c:Conv.BoolToVis}}"
+                        ToolTip="Verbinding met dit apparaat verbreken"
+                        AutomationProperties.Name="Verbinding verbreken" />
             </Grid>
         </Border>
         <DataTemplate.Triggers>
@@ -94,22 +106,25 @@
     </DataTemplate>
 
     <DataTemplate x:Key="Template.PairedItem">
-        <Border x:Name="Bd" Background="{DynamicResource Brush.Tile}" BorderBrush="{DynamicResource Brush.TileBorder}" BorderThickness="1"
-                CornerRadius="18" Padding="14" Margin="5" Height="122">
-            <Grid>
-                <Grid.RowDefinitions>
-                    <RowDefinition Height="*" />
-                    <RowDefinition Height="Auto" />
-                </Grid.RowDefinitions>
-                <TextBlock Text="{Binding Glyph}" FontFamily="{DynamicResource IconFont}" FontSize="22"
-                           HorizontalAlignment="Left" VerticalAlignment="Top" Foreground="{DynamicResource Brush.TextSecondary}" />
-                <StackPanel Grid.Row="1">
-                    <TextBlock Text="{Binding Name}" FontSize="14" FontWeight="SemiBold" Foreground="{DynamicResource Brush.Text}"
-                               TextTrimming="CharacterEllipsis" />
-                    <TextBlock Text="{Binding StatusText}" FontSize="12" Foreground="{DynamicResource Brush.TextSecondary}" />
-                </StackPanel>
-            </Grid>
-        </Border>
+        <Button Style="{DynamicResource Style.CardButton}" Command="{Binding ToggleConnectionCommand}"
+                ToolTip="Klik om te verbinden" AutomationProperties.Name="Verbinden">
+    <Border x:Name="Bd" Background="{DynamicResource Brush.Tile}" BorderBrush="{DynamicResource Brush.TileBorder}" BorderThickness="1"
+                    CornerRadius="18" Padding="14" Margin="5" Height="140">
+                <Grid>
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="*" />
+                        <RowDefinition Height="Auto" />
+                    </Grid.RowDefinitions>
+                    <TextBlock Text="{Binding Glyph}" FontFamily="{DynamicResource IconFont}" FontSize="22"
+                               HorizontalAlignment="Left" VerticalAlignment="Top" Foreground="{DynamicResource Brush.TextSecondary}" />
+                    <StackPanel Grid.Row="1">
+                        <TextBlock Text="{Binding Name}" FontSize="14" FontWeight="SemiBold" Foreground="{DynamicResource Brush.Text}"
+                                   TextTrimming="CharacterEllipsis" />
+                        <TextBlock Text="{Binding StatusText}" FontSize="12" Foreground="{DynamicResource Brush.TextSecondary}" />
+                    </StackPanel>
+                </Grid>
+            </Border>
+        </Button>
         <DataTemplate.Triggers>
             <Trigger SourceName="Bd" Property="IsMouseOver" Value="True">
                 <Setter TargetName="Bd" Property="Background" Value="{DynamicResource Brush.Hover}" />

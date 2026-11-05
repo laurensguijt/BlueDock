@@ -222,6 +222,62 @@
         </Setter>
     </Style>
 
+    <!-- Makes a whole device card clickable (click a disconnected device to connect it).
+         Chromeless: the card inside keeps drawing itself, including its own hover state.
+         IsEnabled follows the command, so a device we cannot steer simply does not react. -->
+    <Style x:Key="Style.CardButton" TargetType="Button">
+        <Setter Property="Cursor" Value="Hand" />
+        <Setter Property="Padding" Value="0" />
+        <Setter Property="HorizontalContentAlignment" Value="Stretch" />
+        <Setter Property="VerticalContentAlignment" Value="Stretch" />
+        <Setter Property="FocusVisualStyle" Value="{x:Null}" />
+        <Setter Property="Template">
+            <Setter.Value>
+                <ControlTemplate TargetType="Button">
+                    <ContentPresenter />
+                </ControlTemplate>
+            </Setter.Value>
+        </Setter>
+    </Style>
+
+    <!-- Compact action button on a device card ("Verbreken") -->
+    <Style x:Key="Style.DeviceButton" TargetType="Button">
+        <Setter Property="Height" Value="26" />
+        <Setter Property="MinWidth" Value="78" />
+        <Setter Property="Cursor" Value="Hand" />
+        <Setter Property="FontSize" Value="12" />
+        <Setter Property="Foreground" Value="{DynamicResource Brush.DeviceButtonForeground}" />
+        <Setter Property="Background" Value="{DynamicResource Brush.DeviceButton}" />
+        <Setter Property="BorderBrush" Value="{DynamicResource Brush.DeviceButtonBorder}" />
+        <Setter Property="FocusVisualStyle" Value="{x:Null}" />
+        <Setter Property="Template">
+            <Setter.Value>
+                <ControlTemplate TargetType="Button">
+                    <Border x:Name="Bd" Background="{TemplateBinding Background}" BorderBrush="{TemplateBinding BorderBrush}"
+                            BorderThickness="1" CornerRadius="{DynamicResource Radius.Control}" Padding="10,0">
+                        <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center" />
+                    </Border>
+                    <ControlTemplate.Triggers>
+                        <!-- Opacity instead of a brush: this button sits on a plain card in one
+                             theme and on an accent coloured tile in another. -->
+                        <Trigger Property="IsMouseOver" Value="True">
+                            <Setter TargetName="Bd" Property="Opacity" Value="0.85" />
+                        </Trigger>
+                        <Trigger Property="IsPressed" Value="True">
+                            <Setter TargetName="Bd" Property="Opacity" Value="0.7" />
+                        </Trigger>
+                        <Trigger Property="IsKeyboardFocused" Value="True">
+                            <Setter TargetName="Bd" Property="BorderBrush" Value="{DynamicResource Brush.Accent}" />
+                        </Trigger>
+                        <Trigger Property="IsEnabled" Value="False">
+                            <Setter Property="Opacity" Value="0.45" />
+                        </Trigger>
+                    </ControlTemplate.Triggers>
+                </ControlTemplate>
+            </Setter.Value>
+        </Setter>
+    </Style>
+
     <!-- Card that groups setting rows -->
     <Style x:Key="Style.SettingsCard" TargetType="Border">
         <Setter Property="Background" Value="{DynamicResource Brush.SettingsCard}" />

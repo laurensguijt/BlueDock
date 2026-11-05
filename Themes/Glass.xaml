@@ -68,6 +68,11 @@
     <SolidColorBrush x:Key="Brush.Tile" Color="#1AFFFFFF" />
     <SolidColorBrush x:Key="Brush.TileBorder" Color="#38FFFFFF" />
 
+    <!-- Action button on a device card -->
+    <SolidColorBrush x:Key="Brush.DeviceButton" Color="#38FFFFFF" />
+    <SolidColorBrush x:Key="Brush.DeviceButtonBorder" Color="#66FFFFFF" />
+    <SolidColorBrush x:Key="Brush.DeviceButtonForeground" Color="#FFFFFFFF" />
+
     <ItemsPanelTemplate x:Key="Panel.Connected"><StackPanel /></ItemsPanelTemplate>
     <ItemsPanelTemplate x:Key="Panel.Paired"><UniformGrid Columns="2" Margin="-4,0" /></ItemsPanelTemplate>
 
@@ -79,6 +84,7 @@
                     <ColumnDefinition Width="Auto" />
                     <ColumnDefinition Width="*" />
                     <ColumnDefinition Width="Auto" />
+                    <ColumnDefinition Width="Auto" />
                 </Grid.ColumnDefinitions>
                 <Grid Width="40" Height="40" Margin="0,0,12,0">
                     <Ellipse Fill="White" />
@@ -88,7 +94,8 @@
                 <StackPanel Grid.Column="1" VerticalAlignment="Center">
                     <TextBlock Text="{Binding Name}" FontSize="14" FontWeight="SemiBold" TextTrimming="CharacterEllipsis"
                                Foreground="{DynamicResource Brush.Text}" />
-                    <TextBlock x:Name="Status" Text="{Binding StatusText}" FontSize="12" Foreground="{DynamicResource Brush.TextSecondary}" />
+                    <TextBlock x:Name="Status" Text="{Binding StatusText}" FontSize="12" TextTrimming="CharacterEllipsis"
+                               Foreground="{DynamicResource Brush.TextSecondary}" />
                 </StackPanel>
                 <StackPanel Grid.Column="2" Orientation="Horizontal" VerticalAlignment="Center" Margin="8,0,0,0"
                             Visibility="{Binding HasBattery, Converter={x:Static c:Conv.BoolToVis}}">
@@ -100,6 +107,12 @@
                     <TextBlock x:Name="Pct" Text="{Binding BatteryText}" FontSize="13" FontWeight="SemiBold" VerticalAlignment="Center"
                                Foreground="{DynamicResource Brush.Text}" />
                 </StackPanel>
+                <Button Grid.Column="3" Style="{DynamicResource Style.DeviceButton}" Margin="10,0,0,0"
+                        VerticalAlignment="Center" Content="{Binding ActionText}"
+                        Command="{Binding ToggleConnectionCommand}"
+                        Visibility="{Binding CanToggle, Converter={x:Static c:Conv.BoolToVis}}"
+                        ToolTip="Verbinding met dit apparaat verbreken"
+                        AutomationProperties.Name="Verbinding verbreken" />
             </Grid>
         </Border>
         <DataTemplate.Triggers>
@@ -112,22 +125,25 @@
     </DataTemplate>
 
     <DataTemplate x:Key="Template.PairedItem">
-        <Border x:Name="Bd" Background="{DynamicResource Brush.Tile}" BorderBrush="{DynamicResource Brush.TileBorder}" BorderThickness="1"
-                CornerRadius="16" Padding="12" Margin="4,0,4,8">
-            <Grid>
-                <Grid.ColumnDefinitions>
-                    <ColumnDefinition Width="Auto" />
-                    <ColumnDefinition Width="*" />
-                </Grid.ColumnDefinitions>
-                <TextBlock Text="{Binding Glyph}" FontFamily="{DynamicResource IconFont}" FontSize="18" Margin="0,0,10,0"
-                           VerticalAlignment="Center" Foreground="{DynamicResource Brush.Text}" />
-                <StackPanel Grid.Column="1" VerticalAlignment="Center">
-                    <TextBlock Text="{Binding Name}" FontSize="13" FontWeight="SemiBold" TextTrimming="CharacterEllipsis"
-                               Foreground="{DynamicResource Brush.Text}" />
-                    <TextBlock Text="{Binding StatusText}" FontSize="11" Foreground="{DynamicResource Brush.TextSecondary}" />
-                </StackPanel>
-            </Grid>
-        </Border>
+        <Button Style="{DynamicResource Style.CardButton}" Command="{Binding ToggleConnectionCommand}"
+                ToolTip="Klik om te verbinden" AutomationProperties.Name="Verbinden">
+    <Border x:Name="Bd" Background="{DynamicResource Brush.Tile}" BorderBrush="{DynamicResource Brush.TileBorder}" BorderThickness="1"
+                    CornerRadius="16" Padding="12" Margin="4,0,4,8">
+                <Grid>
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="Auto" />
+                        <ColumnDefinition Width="*" />
+                    </Grid.ColumnDefinitions>
+                    <TextBlock Text="{Binding Glyph}" FontFamily="{DynamicResource IconFont}" FontSize="18" Margin="0,0,10,0"
+                               VerticalAlignment="Center" Foreground="{DynamicResource Brush.Text}" />
+                    <StackPanel Grid.Column="1" VerticalAlignment="Center">
+                        <TextBlock Text="{Binding Name}" FontSize="13" FontWeight="SemiBold" TextTrimming="CharacterEllipsis"
+                                   Foreground="{DynamicResource Brush.Text}" />
+                        <TextBlock Text="{Binding StatusText}" FontSize="11" Foreground="{DynamicResource Brush.TextSecondary}" />
+                    </StackPanel>
+                </Grid>
+            </Border>
+        </Button>
         <DataTemplate.Triggers>
             <Trigger SourceName="Bd" Property="IsMouseOver" Value="True">
                 <Setter TargetName="Bd" Property="Background" Value="{DynamicResource Brush.Hover}" />
