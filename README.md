@@ -96,7 +96,9 @@ if the device never gets there, which is usually a device that is switched off o
 
 ## Notifications
 
-Connect, disconnect and low battery show a tray balloon.
+Connect, disconnect and low battery show a tray balloon. On Windows 11 the shell draws those
+through its own notification UI, so they already look like a toast and land in the notification
+centre; what a real toast would add is the device's icon instead of the app icon.
 
 Modern Windows toasts, with the device icon, were tried and did not work for a portable exe.
 The findings are kept here so nobody has to repeat the afternoon:
