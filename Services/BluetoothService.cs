@@ -54,11 +54,17 @@ namespace BlueDock.Services
         private const string IsConnectedKey = "System.Devices.Aep.IsConnected";
         private const string ContainerIdKey = "System.Devices.Aep.ContainerId";
         private const string NameKey = "System.ItemNameDisplay";
-        private const string CategoryKey = "System.Devices.Category";
+        // The classification Windows itself uses in Settings, e.g. "Audio.Headphone",
+        // "Communication.Headset.Bluetooth", "Input.Mouse". Lives on the association endpoint,
+        // so it arrives with the watcher and needs no second lookup.
+        private const string AepCategoryKey = "System.Devices.Aep.Category";
+        // Same idea on the device container. Note it is CategoryIds, not Category: the latter
+        // is the localized display text and comes back empty for Bluetooth devices.
+        private const string CategoryIdsKey = "System.Devices.CategoryIds";
         // DEVPKEY_Bluetooth_Battery: battery level (byte, 0-100) that Windows publishes for Bluetooth devices
         private const string BatteryKey = "{104EA319-6EE2-4701-BD47-8DDBF425BBE5} 2";
 
-        private static readonly string[] WatcherProps = { IsConnectedKey, ContainerIdKey };
+        private static readonly string[] WatcherProps = { IsConnectedKey, ContainerIdKey, AepCategoryKey };
 
         private sealed class Entry
         {
@@ -156,7 +162,10 @@ namespace BlueDock.Services
                 ContainerId = GetGuid(info.Properties, ContainerIdKey),
                 IsLowEnergy = isLe,
             };
-            entry.Kind = KindFromName(entry.Name);
+            // Prefer what Windows says this device is; only guess from the name if it says nothing.
+            entry.Kind = KindFromCategories(GetStrings(info.Properties, AepCategoryKey));
+            if (entry.Kind == DeviceKind.Other)
+                entry.Kind = KindFromName(entry.Name);
 
             lock (_lock)
             {
@@ -345,40 +354,51 @@ namespace BlueDock.Services
 
         // ---------- Device type (icon) ----------
 
+        /// <summary>
+        /// Last resort when the association endpoint carried no category: ask the device
+        /// container. Rarely needed, since Aep.Category is populated for paired devices.
+        /// </summary>
         private async Task ResolveKindAsync(Entry entry)
         {
+            if (entry.Kind != DeviceKind.Other) return;
             if (entry.ContainerId is not Guid container) return;
             try
             {
                 var info = await DeviceInformation.CreateFromIdAsync(
-                    "{" + container + "}", new[] { CategoryKey }, DeviceInformationKind.DeviceContainer);
+                    "{" + container + "}", new[] { CategoryIdsKey }, DeviceInformationKind.DeviceContainer);
 
-                if (info.Properties.TryGetValue(CategoryKey, out var value) && value is string[] categories)
+                var kind = KindFromCategories(GetStrings(info.Properties, CategoryIdsKey));
+                if (kind != DeviceKind.Other && kind != entry.Kind)
                 {
-                    var kind = KindFromCategories(categories);
-                    if (kind != DeviceKind.Other && kind != entry.Kind)
-                    {
-                        entry.Kind = kind;
-                        DeviceUpdated?.Invoke(this, entry.Snapshot());
-                    }
+                    entry.Kind = kind;
+                    DeviceUpdated?.Invoke(this, entry.Snapshot());
                 }
             }
             catch
             {
-                // Keep the name based guess.
+                // Keep what we have.
             }
         }
 
+        /// <summary>
+        /// Maps Windows' device categories onto our icon set. Categories are dotted ids such as
+        /// "Audio.Headphone" or "Communication.Headset.Bluetooth"; the first entry is the primary
+        /// one, so each category is matched in full before moving on to the next.
+        /// </summary>
         private static DeviceKind KindFromCategories(IEnumerable<string> categories)
         {
-            var all = string.Join(";", categories).ToLowerInvariant();
-            if (all.Contains("keyboard")) return DeviceKind.Keyboard;
-            if (all.Contains("mouse") || all.Contains("pointing")) return DeviceKind.Mouse;
-            if (all.Contains("game")) return DeviceKind.Gamepad;
-            if (all.Contains("speaker")) return DeviceKind.Speaker;
-            if (all.Contains("headphone") || all.Contains("headset") || all.Contains("audio")) return DeviceKind.Headphones;
-            if (all.Contains("phone")) return DeviceKind.Phone;
-            if (all.Contains("computer")) return DeviceKind.Computer;
+            foreach (var category in categories)
+            {
+                var c = category.ToLowerInvariant();
+
+                if (c.Contains("keyboard")) return DeviceKind.Keyboard;
+                if (c.Contains("mouse") || c.Contains("pointing")) return DeviceKind.Mouse;
+                if (c.Contains("gaming") || c.Contains("gamepad") || c.Contains("controller")) return DeviceKind.Gamepad;
+                if (c.Contains("headset") || c.Contains("headphone")) return DeviceKind.Headphones;
+                if (c.Contains("speaker")) return DeviceKind.Speaker;
+                if (c.Contains("phone")) return DeviceKind.Phone;
+                if (c.StartsWith("computer")) return DeviceKind.Computer;
+            }
             return DeviceKind.Other;
         }
 
@@ -509,5 +529,8 @@ namespace BlueDock.Services
 
         private static Guid? GetGuid(IReadOnlyDictionary<string, object> props, string key) =>
             props.TryGetValue(key, out var v) && v is Guid g ? g : null;
+
+        private static IEnumerable<string> GetStrings(IReadOnlyDictionary<string, object> props, string key) =>
+            props.TryGetValue(key, out var v) && v is string[] a ? a : Array.Empty<string>();
     }
 }
