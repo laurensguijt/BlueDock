@@ -1,0 +1,60 @@
+<ResourceDictionary xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+                    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+                    xmlns:sys="clr-namespace:System;assembly=mscorlib">
+
+    <!-- ============ Glass palette: Light ============
+         Colours only. The structure of this theme (templates, radii, spacing) lives in
+         Glass.xaml; ThemeService merges a palette and a structure together. Both palettes
+         of a theme must define exactly the same keys.
+
+         Light frost over the acrylic blur: the surfaces stay translucent white, but the ink
+         turns dark. The frost is kept fairly opaque so dark text stays readable whatever the
+         wallpaper underneath happens to be. -->
+
+    <sys:Boolean x:Key="Theme.IsDark">False</sys:Boolean>
+    <SolidColorBrush x:Key="Brush.WindowBackground" Color="#59FFFFFF" />
+    <LinearGradientBrush x:Key="Brush.WindowFallback" StartPoint="0,0" EndPoint="1,1">
+        <GradientStop Color="#FFE8EDFF" Offset="0" />
+        <GradientStop Color="#FFC9D6F5" Offset="1" />
+    </LinearGradientBrush>
+    <SolidColorBrush x:Key="Brush.Text" Color="#FF0F172A" />
+    <SolidColorBrush x:Key="Brush.TextSecondary" Color="#CC1E293B" />
+    <SolidColorBrush x:Key="Brush.Accent" Color="#FF1D4ED8" />
+    <SolidColorBrush x:Key="Brush.OnAccent" Color="#FFFFFFFF" />
+    <SolidColorBrush x:Key="Brush.Warning" Color="#FFB45309" />
+    <SolidColorBrush x:Key="Brush.Link" Color="#FF1D4ED8" />
+    <SolidColorBrush x:Key="Brush.Divider" Color="#331E293B" />
+    <SolidColorBrush x:Key="Brush.Hover" Color="#1A1E293B" />
+    <SolidColorBrush x:Key="Brush.Badge" Color="#A6FFFFFF" />
+    <SolidColorBrush x:Key="Brush.BadgeForeground" Color="#FF1D4ED8" />
+    <SolidColorBrush x:Key="Brush.IconButton" Color="#73FFFFFF" />
+    <SolidColorBrush x:Key="Brush.IconButtonBorder" Color="#8CFFFFFF" />
+    <SolidColorBrush x:Key="Brush.PrimaryBackground" Color="#FF1D4ED8" />
+    <SolidColorBrush x:Key="Brush.PrimaryForeground" Color="#FFFFFFFF" />
+    <SolidColorBrush x:Key="Brush.PrimaryBorder" Color="#FF1D4ED8" />
+    <SolidColorBrush x:Key="Brush.SwitchOff" Color="#59FFFFFF" />
+    <SolidColorBrush x:Key="Brush.SwitchBorder" Color="#591E293B" />
+    <SolidColorBrush x:Key="Brush.SwitchThumbOff" Color="#FF475569" />
+    <SolidColorBrush x:Key="Brush.SwitchOn" Color="#FF34C759" />
+    <SolidColorBrush x:Key="Brush.SwitchThumbOn" Color="#FFFFFFFF" />
+    <SolidColorBrush x:Key="Brush.ControlBackground" Color="#8CFFFFFF" />
+    <SolidColorBrush x:Key="Brush.ControlBorder" Color="#401E293B" />
+    <SolidColorBrush x:Key="Brush.PopupBackground" Color="#F2F8FAFC" />
+    <SolidColorBrush x:Key="Brush.PopupText" Color="#FF0F172A" />
+    <SolidColorBrush x:Key="Brush.PopupSelected" Color="#331D4ED8" />
+    <SolidColorBrush x:Key="Brush.PopupHover" Color="#1A1E293B" />
+    <SolidColorBrush x:Key="Brush.SettingsCard" Color="#80FFFFFF" />
+    <SolidColorBrush x:Key="Brush.SettingsCardBorder" Color="#99FFFFFF" />
+    <SolidColorBrush x:Key="Brush.Card" Color="#8CFFFFFF" />
+    <SolidColorBrush x:Key="Brush.CardBorder" Color="#A6FFFFFF" />
+    <SolidColorBrush x:Key="Brush.Tile" Color="#66FFFFFF" />
+    <SolidColorBrush x:Key="Brush.TileBorder" Color="#8CFFFFFF" />
+    <SolidColorBrush x:Key="Brush.DeviceButton" Color="#99FFFFFF" />
+    <SolidColorBrush x:Key="Brush.DeviceButtonBorder" Color="#4D1E293B" />
+    <SolidColorBrush x:Key="Brush.DeviceButtonForeground" Color="#FF0F172A" />
+    <!-- Drawn inside a glass card, so these cannot be plain white in this mode -->
+    <SolidColorBrush x:Key="Brush.IconCircle" Color="#D9FFFFFF" />
+    <SolidColorBrush x:Key="Brush.BatteryTrack" Color="#401E293B" />
+    <SolidColorBrush x:Key="Brush.BatteryFill" Color="#FF1E293B" />
+
+</ResourceDictionary>

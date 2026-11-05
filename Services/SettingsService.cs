@@ -7,6 +7,8 @@ namespace BlueDock.Services
     public sealed class AppSettings
     {
         public string Theme { get; set; } = ThemeService.Fluent;
+        /// <summary>"Auto" (follow Windows), "Light" or "Dark". Auto is the default on a fresh install.</summary>
+        public string ThemeMode { get; set; } = "Auto";
         public bool NotifyOnConnect { get; set; } = true;
         public bool NotifyOnDisconnect { get; set; } = true;
         public bool NotifyOnLowBattery { get; set; } = true;

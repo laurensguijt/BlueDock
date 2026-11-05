@@ -108,6 +108,24 @@
                                 </DataTemplate>
                             </ComboBox.ItemTemplate>
                         </ComboBox>
+
+                        <TextBlock Text="Modus" FontSize="14" Margin="0,14,0,6" />
+                        <Border Background="{DynamicResource Brush.ControlBackground}"
+                                BorderBrush="{DynamicResource Brush.ControlBorder}" BorderThickness="1"
+                                CornerRadius="{DynamicResource Radius.Control}" Padding="2">
+                            <UniformGrid Columns="3">
+                                <RadioButton Style="{StaticResource Style.Segment}" Content="Licht"
+                                             IsChecked="{Binding ThemeMode, Mode=TwoWay, Converter={x:Static c:Conv.EnumToBool}, ConverterParameter=Light}"
+                                             AutomationProperties.Name="Lichte modus" />
+                                <RadioButton Style="{StaticResource Style.Segment}" Content="Donker"
+                                             IsChecked="{Binding ThemeMode, Mode=TwoWay, Converter={x:Static c:Conv.EnumToBool}, ConverterParameter=Dark}"
+                                             AutomationProperties.Name="Donkere modus" />
+                                <RadioButton Style="{StaticResource Style.Segment}" Content="Automatisch"
+                                             IsChecked="{Binding ThemeMode, Mode=TwoWay, Converter={x:Static c:Conv.EnumToBool}, ConverterParameter=Auto}"
+                                             ToolTip="Volgt de kleurinstelling van Windows"
+                                             AutomationProperties.Name="Automatisch, volgt Windows" />
+                            </UniformGrid>
+                        </Border>
                     </StackPanel>
                 </Border>
 

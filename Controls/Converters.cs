@@ -12,6 +12,26 @@ namespace BlueDock.Controls
         public static readonly BooleanToVisibilityConverter BoolToVis = new();
         public static readonly InverseBoolToVisibilityConverter InverseBoolToVis = new();
         public static readonly PercentToWidthConverter PercentToWidth = new();
+        public static readonly EnumToBoolConverter EnumToBool = new();
+    }
+
+    /// <summary>
+    /// Enum value &lt;-&gt; "is this the selected one", for a set of radio buttons.
+    /// The option is named in ConverterParameter; unchecking does nothing, since in a radio
+    /// group the newly checked button reports the change.
+    /// </summary>
+    public sealed class EnumToBoolConverter : IValueConverter
+    {
+        public object Convert(object value, Type targetType, object parameter, CultureInfo culture) =>
+            value != null && parameter != null
+            && string.Equals(value.ToString(), parameter.ToString(), StringComparison.OrdinalIgnoreCase);
+
+        public object ConvertBack(object value, Type targetType, object parameter, CultureInfo culture)
+        {
+            if (value is not true || parameter == null) return Binding.DoNothing;
+            try { return Enum.Parse(targetType, parameter.ToString()!, ignoreCase: true); }
+            catch { return Binding.DoNothing; }
+        }
     }
 
     /// <summary>true → Collapsed, false → Visible.</summary>

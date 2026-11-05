@@ -14,7 +14,15 @@ Windows system-tray Bluetooth popup (WPF, .NET 8). See README.md for features an
   the watcher. Do NOT use System.Devices.Category on the container: it is the localized display
   text and comes back empty for Bluetooth. The container property that does hold data is
   System.Devices.CategoryIds. Name guessing is only a last resort.
-- Themes: Shared.xaml (styles, all DynamicResource) + one active theme (Fluent / Glass / Tiles) swapped at merged-dictionary index 1 by ThemeService. Every theme must define the same resource keys.
+- Themes: a look is built from three merged dictionaries. Index 0 Shared.xaml (styles, all
+  DynamicResource), index 1 a palette (<Theme>.Light.xaml / <Theme>.Dark.xaml, colours only),
+  index 2 the theme structure (<Theme>.xaml: templates, radii, spacing). ThemeService swaps
+  1 and 2 together. A colour belongs in the palette, never in a template: a hardcoded colour
+  silently breaks the other mode. Both palettes of a theme must define exactly the same keys.
+- Light/dark: ThemeMode is Auto (default), Light or Dark. Auto follows Windows via
+  Services/SystemTheme.cs, which reads AppsUseLightTheme from the registry (there is no WinRT
+  API for it in a desktop app) and listens to SystemEvents.UserPreferenceChanged on a system
+  thread, so handlers marshal to the UI thread themselves.
 - Icons: Tabler geometries in Themes/Icons.xaml, drawn by Controls/TablerIcon.cs (stroke only,
   24x24 grid, Foreground is inherited). Icons.xaml is merged from inside Shared.xaml so the
   theme stays at index 1. There is no icon font: do not reintroduce Segoe glyph code points.

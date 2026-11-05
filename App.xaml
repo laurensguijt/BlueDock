@@ -7,7 +7,9 @@
             <ResourceDictionary.MergedDictionaries>
                 <!-- Index 0: shared, theme independent -->
                 <ResourceDictionary Source="Themes/Shared.xaml" />
-                <!-- Index 1: active theme, swapped at runtime by ThemeService -->
+                <!-- Index 1: palette (colours, light or dark), swapped by ThemeService -->
+                <ResourceDictionary Source="Themes/Fluent.Light.xaml" />
+                <!-- Index 2: theme structure (templates, radii), swapped by ThemeService -->
                 <ResourceDictionary Source="Themes/Fluent.xaml" />
             </ResourceDictionary.MergedDictionaries>
         </ResourceDictionary>

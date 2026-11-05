@@ -6,66 +6,17 @@
     <!-- ============ Theme: Soft Tiles (solid, light) ============ -->
 
     <sys:String x:Key="Theme.Backdrop">None</sys:String>
-    <sys:Boolean x:Key="Theme.IsDark">False</sys:Boolean>
     <FontFamily x:Key="Font.Main">Segoe UI Variable Display, Segoe UI</FontFamily>
 
-    <!-- Window -->
-    <SolidColorBrush x:Key="Brush.WindowBackground" Color="#FFF6F7FB" />
-    <SolidColorBrush x:Key="Brush.WindowFallback" Color="#FFF6F7FB" />
     <Thickness x:Key="Thickness.WindowPadding">15,16,15,15</Thickness>
     <Thickness x:Key="Thickness.SectionHeader">5,14,0,6</Thickness>
 
-    <!-- Text and accents -->
-    <SolidColorBrush x:Key="Brush.Text" Color="#FF161A2B" />
-    <SolidColorBrush x:Key="Brush.TextSecondary" Color="#FF5B6178" />
-    <SolidColorBrush x:Key="Brush.Accent" Color="#FF2F54EB" />
-    <SolidColorBrush x:Key="Brush.OnAccent" Color="#FFFFFFFF" />
-    <SolidColorBrush x:Key="Brush.Warning" Color="#FFFFD591" />
-    <SolidColorBrush x:Key="Brush.Link" Color="#FF2F54EB" />
-    <SolidColorBrush x:Key="Brush.Divider" Color="#FFE6E8F0" />
-    <SolidColorBrush x:Key="Brush.Hover" Color="#FFEEF1FF" />
-
-    <!-- Header badge -->
-    <SolidColorBrush x:Key="Brush.Badge" Color="#FFEEF1FF" />
-    <SolidColorBrush x:Key="Brush.BadgeForeground" Color="#FF2F54EB" />
     <CornerRadius x:Key="Radius.Badge">12</CornerRadius>
 
-    <!-- Buttons -->
-    <SolidColorBrush x:Key="Brush.IconButton" Color="#FFFFFFFF" />
-    <SolidColorBrush x:Key="Brush.IconButtonBorder" Color="#FFE6E8F0" />
-    <SolidColorBrush x:Key="Brush.PrimaryBackground" Color="#FF2F54EB" />
-    <SolidColorBrush x:Key="Brush.PrimaryForeground" Color="#FFFFFFFF" />
-    <SolidColorBrush x:Key="Brush.PrimaryBorder" Color="#FF2F54EB" />
     <CornerRadius x:Key="Radius.IconButton">14</CornerRadius>
     <CornerRadius x:Key="Radius.Button">16</CornerRadius>
     <CornerRadius x:Key="Radius.Control">12</CornerRadius>
     <CornerRadius x:Key="Radius.Card">16</CornerRadius>
-
-    <!-- Switch -->
-    <SolidColorBrush x:Key="Brush.SwitchOff" Color="#FFDDE1EC" />
-    <SolidColorBrush x:Key="Brush.SwitchBorder" Color="#FFDDE1EC" />
-    <SolidColorBrush x:Key="Brush.SwitchThumbOff" Color="#FFFFFFFF" />
-    <SolidColorBrush x:Key="Brush.SwitchOn" Color="#FF2F54EB" />
-    <SolidColorBrush x:Key="Brush.SwitchThumbOn" Color="#FFFFFFFF" />
-
-    <!-- Dropdown and settings -->
-    <SolidColorBrush x:Key="Brush.ControlBackground" Color="#FFF6F7FB" />
-    <SolidColorBrush x:Key="Brush.ControlBorder" Color="#FFE6E8F0" />
-    <SolidColorBrush x:Key="Brush.PopupBackground" Color="#FFFFFFFF" />
-    <SolidColorBrush x:Key="Brush.PopupText" Color="#FF161A2B" />
-    <SolidColorBrush x:Key="Brush.PopupSelected" Color="#FFEEF1FF" />
-    <SolidColorBrush x:Key="Brush.PopupHover" Color="#FFF3F4F8" />
-    <SolidColorBrush x:Key="Brush.SettingsCard" Color="#FFFFFFFF" />
-    <SolidColorBrush x:Key="Brush.SettingsCardBorder" Color="#FFE6E8F0" />
-
-    <!-- Tiles -->
-    <SolidColorBrush x:Key="Brush.Tile" Color="#FFFFFFFF" />
-    <SolidColorBrush x:Key="Brush.TileBorder" Color="#FFE6E8F0" />
-
-    <!-- Action button on a device card; sits on the accent coloured connected tile -->
-    <SolidColorBrush x:Key="Brush.DeviceButton" Color="#26FFFFFF" />
-    <SolidColorBrush x:Key="Brush.DeviceButtonBorder" Color="#80FFFFFF" />
-    <SolidColorBrush x:Key="Brush.DeviceButtonForeground" Color="#FFFFFFFF" />
 
     <ItemsPanelTemplate x:Key="Panel.Connected"><UniformGrid Columns="2" /></ItemsPanelTemplate>
     <ItemsPanelTemplate x:Key="Panel.Paired"><UniformGrid Columns="2" /></ItemsPanelTemplate>
@@ -79,15 +30,15 @@
                     <RowDefinition Height="Auto" />
                 </Grid.RowDefinitions>
                 <c:TablerIcon Data="{Binding Icon}" IconSize="22"
-                           HorizontalAlignment="Left" VerticalAlignment="Top" Foreground="White" />
+                           HorizontalAlignment="Left" VerticalAlignment="Top" Foreground="{DynamicResource Brush.OnAccent}" />
                 <Grid Width="38" Height="38" HorizontalAlignment="Right" VerticalAlignment="Top"
                       Visibility="{Binding HasBattery, Converter={x:Static c:Conv.BoolToVis}}">
-                    <c:BatteryRing x:Name="Ring" Value="{Binding BatteryValue}" Thickness="3" Stroke="White" />
-                    <TextBlock Text="{Binding Battery}" FontSize="11" FontWeight="Bold" Foreground="White"
+                    <c:BatteryRing x:Name="Ring" Value="{Binding BatteryValue}" Thickness="3" Stroke="{DynamicResource Brush.OnAccent}" />
+                    <TextBlock Text="{Binding Battery}" FontSize="11" FontWeight="Bold" Foreground="{DynamicResource Brush.OnAccent}"
                                HorizontalAlignment="Center" VerticalAlignment="Center" />
                 </Grid>
                 <StackPanel Grid.Row="1">
-                    <TextBlock Text="{Binding Name}" FontSize="14" FontWeight="SemiBold" Foreground="White" TextTrimming="CharacterEllipsis" />
+                    <TextBlock Text="{Binding Name}" FontSize="14" FontWeight="SemiBold" Foreground="{DynamicResource Brush.OnAccent}" TextTrimming="CharacterEllipsis" />
                     <TextBlock Text="{Binding StatusText}" FontSize="12" Foreground="#E6FFFFFF" />
                 </StackPanel>
                 <Button Grid.Row="2" Style="{DynamicResource Style.DeviceButton}" Margin="0,8,0,0"

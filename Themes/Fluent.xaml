@@ -6,66 +6,17 @@
     <!-- ============ Theme: Windows 11 Fluent (Mica, light) ============ -->
 
     <sys:String x:Key="Theme.Backdrop">Mica</sys:String>
-    <sys:Boolean x:Key="Theme.IsDark">False</sys:Boolean>
     <FontFamily x:Key="Font.Main">Segoe UI Variable Text, Segoe UI</FontFamily>
 
-    <!-- Window -->
-    <SolidColorBrush x:Key="Brush.WindowBackground" Color="#00FFFFFF" />
-    <SolidColorBrush x:Key="Brush.WindowFallback" Color="#FFF3F3F3" />
     <Thickness x:Key="Thickness.WindowPadding">12,12,12,12</Thickness>
     <Thickness x:Key="Thickness.SectionHeader">8,14,0,6</Thickness>
 
-    <!-- Text and accents -->
-    <SolidColorBrush x:Key="Brush.Text" Color="#FF1B1B1B" />
-    <SolidColorBrush x:Key="Brush.TextSecondary" Color="#FF5C5C5C" />
-    <SolidColorBrush x:Key="Brush.Accent" Color="#FF005FB8" />
-    <SolidColorBrush x:Key="Brush.OnAccent" Color="#FFFFFFFF" />
-    <SolidColorBrush x:Key="Brush.Warning" Color="#FFC42B1C" />
-    <SolidColorBrush x:Key="Brush.Link" Color="#FF005FB8" />
-    <SolidColorBrush x:Key="Brush.Divider" Color="#14000000" />
-    <SolidColorBrush x:Key="Brush.Hover" Color="#0F000000" />
-
-    <!-- Header badge -->
-    <SolidColorBrush x:Key="Brush.Badge" Color="#00FFFFFF" />
-    <SolidColorBrush x:Key="Brush.BadgeForeground" Color="#FF005FB8" />
     <CornerRadius x:Key="Radius.Badge">6</CornerRadius>
 
-    <!-- Buttons -->
-    <SolidColorBrush x:Key="Brush.IconButton" Color="#00FFFFFF" />
-    <SolidColorBrush x:Key="Brush.IconButtonBorder" Color="#00FFFFFF" />
-    <SolidColorBrush x:Key="Brush.PrimaryBackground" Color="#FF005FB8" />
-    <SolidColorBrush x:Key="Brush.PrimaryForeground" Color="#FFFFFFFF" />
-    <SolidColorBrush x:Key="Brush.PrimaryBorder" Color="#FF005FB8" />
     <CornerRadius x:Key="Radius.IconButton">4</CornerRadius>
     <CornerRadius x:Key="Radius.Button">4</CornerRadius>
     <CornerRadius x:Key="Radius.Control">4</CornerRadius>
     <CornerRadius x:Key="Radius.Card">6</CornerRadius>
-
-    <!-- Switch -->
-    <SolidColorBrush x:Key="Brush.SwitchOff" Color="#00FFFFFF" />
-    <SolidColorBrush x:Key="Brush.SwitchBorder" Color="#FF8A8A8A" />
-    <SolidColorBrush x:Key="Brush.SwitchThumbOff" Color="#FF5C5C5C" />
-    <SolidColorBrush x:Key="Brush.SwitchOn" Color="#FF005FB8" />
-    <SolidColorBrush x:Key="Brush.SwitchThumbOn" Color="#FFFFFFFF" />
-
-    <!-- Dropdown and settings -->
-    <SolidColorBrush x:Key="Brush.ControlBackground" Color="#B3FFFFFF" />
-    <SolidColorBrush x:Key="Brush.ControlBorder" Color="#1F000000" />
-    <SolidColorBrush x:Key="Brush.PopupBackground" Color="#FFF9F9F9" />
-    <SolidColorBrush x:Key="Brush.PopupText" Color="#FF1B1B1B" />
-    <SolidColorBrush x:Key="Brush.PopupSelected" Color="#1A005FB8" />
-    <SolidColorBrush x:Key="Brush.PopupHover" Color="#0F000000" />
-    <SolidColorBrush x:Key="Brush.SettingsCard" Color="#B3FFFFFF" />
-    <SolidColorBrush x:Key="Brush.SettingsCardBorder" Color="#14000000" />
-
-    <!-- Device cards -->
-    <SolidColorBrush x:Key="Brush.Card" Color="#B3FFFFFF" />
-    <SolidColorBrush x:Key="Brush.CardBorder" Color="#14000000" />
-
-    <!-- Action button on a device card -->
-    <SolidColorBrush x:Key="Brush.DeviceButton" Color="#B3FFFFFF" />
-    <SolidColorBrush x:Key="Brush.DeviceButtonBorder" Color="#2B000000" />
-    <SolidColorBrush x:Key="Brush.DeviceButtonForeground" Color="#FF1B1B1B" />
 
     <ItemsPanelTemplate x:Key="Panel.Connected"><StackPanel /></ItemsPanelTemplate>
     <ItemsPanelTemplate x:Key="Panel.Paired"><StackPanel /></ItemsPanelTemplate>

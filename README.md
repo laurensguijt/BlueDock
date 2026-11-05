@@ -17,6 +17,9 @@ their connection status and battery level, and a button to pair a new device.
 - **Apparaat toevoegen** opens the Windows "Add a device" dialog
 - Settings (gear icon):
   - Theme: Windows 11 Fluent, Liquid Glass, Soft Tiles (switches live)
+  - Mode: Licht, Donker or Automatisch. Automatisch follows the Windows colour setting and
+    changes along with it while running; it is the default on a fresh install. Every theme
+    has both a light and a dark palette.
   - Notifications on connect, on disconnect, on low battery
   - Start with Windows
 - Settings are stored in `%AppData%\BlueDock\settings.json`
@@ -63,13 +66,18 @@ Controls/
 Themes/
   Shared.xaml              theme independent styles (buttons, switch, dropdown)
   Icons.xaml               Tabler icon geometries
+  Fluent.xaml              theme structure: templates, radii, spacing
+  Fluent.Light/.Dark.xaml  the two palettes of that theme (colours only)
   Fluent.xaml / Glass.xaml / Tiles.xaml
 ```
 
 ### Adding a theme
 
-Copy one of the theme files in `Themes/`, change brushes and templates, and add it to
-`ThemeService.Available`. Every key used by the window is defined in each theme file.
+A theme is a structure file plus two palettes. Copy `Fluent.xaml` for the structure (templates,
+radii, spacing), copy `Fluent.Light.xaml` and `Fluent.Dark.xaml` for the colours, and add the
+theme to `ThemeService.Available`. Keep every colour in the palettes: a colour written straight
+into a template looks right in one mode and wrong in the other. Both palettes must define the
+same keys.
 
 ## Connecting
 
@@ -88,7 +96,6 @@ if the device never gets there, which is usually a device that is switched off o
 
 ## Roadmap
 
-- Follow the Windows light/dark setting for the Fluent theme
 - Windows toast notifications with device icon
 
 ## Contributing

@@ -97,7 +97,21 @@ namespace BlueDock.ViewModels
                 if (value == _settings.Current.Theme) return;
                 _settings.Current.Theme = value;
                 _settings.Save();
-                ThemeService.Apply(value);
+                ThemeService.Apply(value, ThemeMode);
+                OnPropertyChanged();
+            }
+        }
+
+        /// <summary>Light, dark, or follow Windows. Auto is the default on a fresh install.</summary>
+        public ThemeMode ThemeMode
+        {
+            get => ThemeService.ParseMode(_settings.Current.ThemeMode);
+            set
+            {
+                if (value == ThemeMode) return;
+                _settings.Current.ThemeMode = value.ToString();
+                _settings.Save();
+                ThemeService.Apply(_settings.Current.Theme, value);
                 OnPropertyChanged();
             }
         }

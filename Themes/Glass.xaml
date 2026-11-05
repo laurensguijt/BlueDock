@@ -6,72 +6,18 @@
     <!-- ============ Theme: Liquid Glass (Acrylic, dark) ============ -->
 
     <sys:String x:Key="Theme.Backdrop">Acrylic</sys:String>
-    <sys:Boolean x:Key="Theme.IsDark">True</sys:Boolean>
     <FontFamily x:Key="Font.Main">Segoe UI Variable Display, Segoe UI</FontFamily>
 
-    <!-- Window: light frost on top of the acrylic blur -->
-    <SolidColorBrush x:Key="Brush.WindowBackground" Color="#1AFFFFFF" />
     <!-- Used on Windows 10 / builds without system backdrops -->
-    <LinearGradientBrush x:Key="Brush.WindowFallback" StartPoint="0,0" EndPoint="1,1">
-        <GradientStop Color="#FF1E3A8A" Offset="0" />
-        <GradientStop Color="#FF0F172A" Offset="1" />
-    </LinearGradientBrush>
     <Thickness x:Key="Thickness.WindowPadding">16,16,16,16</Thickness>
     <Thickness x:Key="Thickness.SectionHeader">4,14,0,8</Thickness>
 
-    <!-- Text and accents -->
-    <SolidColorBrush x:Key="Brush.Text" Color="#FFFFFFFF" />
-    <SolidColorBrush x:Key="Brush.TextSecondary" Color="#D9FFFFFF" />
-    <SolidColorBrush x:Key="Brush.Accent" Color="#FF1D4ED8" />
-    <SolidColorBrush x:Key="Brush.OnAccent" Color="#FFFFFFFF" />
-    <SolidColorBrush x:Key="Brush.Warning" Color="#FFFDBA74" />
-    <SolidColorBrush x:Key="Brush.Link" Color="#FFBFDBFE" />
-    <SolidColorBrush x:Key="Brush.Divider" Color="#33FFFFFF" />
-    <SolidColorBrush x:Key="Brush.Hover" Color="#33FFFFFF" />
-
-    <!-- Header badge -->
-    <SolidColorBrush x:Key="Brush.Badge" Color="#40FFFFFF" />
-    <SolidColorBrush x:Key="Brush.BadgeForeground" Color="#FFFFFFFF" />
     <CornerRadius x:Key="Radius.Badge">12</CornerRadius>
 
-    <!-- Buttons -->
-    <SolidColorBrush x:Key="Brush.IconButton" Color="#2EFFFFFF" />
-    <SolidColorBrush x:Key="Brush.IconButtonBorder" Color="#59FFFFFF" />
-    <SolidColorBrush x:Key="Brush.PrimaryBackground" Color="#FFFFFFFF" />
-    <SolidColorBrush x:Key="Brush.PrimaryForeground" Color="#FF1D4ED8" />
-    <SolidColorBrush x:Key="Brush.PrimaryBorder" Color="#FFFFFFFF" />
     <CornerRadius x:Key="Radius.IconButton">20</CornerRadius>
     <CornerRadius x:Key="Radius.Button">22</CornerRadius>
     <CornerRadius x:Key="Radius.Control">14</CornerRadius>
     <CornerRadius x:Key="Radius.Card">18</CornerRadius>
-
-    <!-- Switch -->
-    <SolidColorBrush x:Key="Brush.SwitchOff" Color="#33FFFFFF" />
-    <SolidColorBrush x:Key="Brush.SwitchBorder" Color="#59FFFFFF" />
-    <SolidColorBrush x:Key="Brush.SwitchThumbOff" Color="#FFFFFFFF" />
-    <SolidColorBrush x:Key="Brush.SwitchOn" Color="#FF34C759" />
-    <SolidColorBrush x:Key="Brush.SwitchThumbOn" Color="#FFFFFFFF" />
-
-    <!-- Dropdown and settings -->
-    <SolidColorBrush x:Key="Brush.ControlBackground" Color="#2EFFFFFF" />
-    <SolidColorBrush x:Key="Brush.ControlBorder" Color="#4DFFFFFF" />
-    <SolidColorBrush x:Key="Brush.PopupBackground" Color="#F21E293B" />
-    <SolidColorBrush x:Key="Brush.PopupText" Color="#FFFFFFFF" />
-    <SolidColorBrush x:Key="Brush.PopupSelected" Color="#40FFFFFF" />
-    <SolidColorBrush x:Key="Brush.PopupHover" Color="#26FFFFFF" />
-    <SolidColorBrush x:Key="Brush.SettingsCard" Color="#24FFFFFF" />
-    <SolidColorBrush x:Key="Brush.SettingsCardBorder" Color="#40FFFFFF" />
-
-    <!-- Device cards -->
-    <SolidColorBrush x:Key="Brush.Card" Color="#38FFFFFF" />
-    <SolidColorBrush x:Key="Brush.CardBorder" Color="#4DFFFFFF" />
-    <SolidColorBrush x:Key="Brush.Tile" Color="#1AFFFFFF" />
-    <SolidColorBrush x:Key="Brush.TileBorder" Color="#38FFFFFF" />
-
-    <!-- Action button on a device card -->
-    <SolidColorBrush x:Key="Brush.DeviceButton" Color="#38FFFFFF" />
-    <SolidColorBrush x:Key="Brush.DeviceButtonBorder" Color="#66FFFFFF" />
-    <SolidColorBrush x:Key="Brush.DeviceButtonForeground" Color="#FFFFFFFF" />
 
     <ItemsPanelTemplate x:Key="Panel.Connected"><StackPanel /></ItemsPanelTemplate>
     <ItemsPanelTemplate x:Key="Panel.Paired"><UniformGrid Columns="2" Margin="-4,0" /></ItemsPanelTemplate>
@@ -87,7 +33,7 @@
                     <ColumnDefinition Width="Auto" />
                 </Grid.ColumnDefinitions>
                 <Grid Width="40" Height="40" Margin="0,0,12,0">
-                    <Ellipse Fill="White" />
+                    <Ellipse Fill="{DynamicResource Brush.IconCircle}" />
                     <c:TablerIcon Data="{Binding Icon}" IconSize="18"
                                HorizontalAlignment="Center" VerticalAlignment="Center" Foreground="{DynamicResource Brush.Accent}" />
                 </Grid>
@@ -100,8 +46,8 @@
                 <StackPanel Grid.Column="2" Orientation="Horizontal" VerticalAlignment="Center" Margin="8,0,0,0"
                             Visibility="{Binding HasBattery, Converter={x:Static c:Conv.BoolToVis}}">
                     <Grid Width="28" Height="8" Margin="0,0,6,0" VerticalAlignment="Center">
-                        <Border Background="#4DFFFFFF" CornerRadius="4" />
-                        <Border x:Name="Fill" Background="White" CornerRadius="4" HorizontalAlignment="Left"
+                        <Border Background="{DynamicResource Brush.BatteryTrack}" CornerRadius="4" />
+                        <Border x:Name="Fill" Background="{DynamicResource Brush.BatteryFill}" CornerRadius="4" HorizontalAlignment="Left"
                                 Width="{Binding BatteryValue, Converter={x:Static c:Conv.PercentToWidth}, ConverterParameter=28}" />
                     </Grid>
                     <TextBlock x:Name="Pct" Text="{Binding BatteryText}" FontSize="13" FontWeight="SemiBold" VerticalAlignment="Center"

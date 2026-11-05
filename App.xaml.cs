@@ -28,7 +28,7 @@ namespace BlueDock
             }
 
             Settings.Load();
-            ThemeService.Apply(Settings.Current.Theme);
+            ThemeService.Apply(Settings.Current.Theme, ThemeService.ParseMode(Settings.Current.ThemeMode));
 
             _bluetooth = new BluetoothService();
             var radio = new RadioService();
