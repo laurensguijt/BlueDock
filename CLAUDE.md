@@ -34,6 +34,12 @@ Windows system-tray Bluetooth popup (WPF, .NET 8). See README.md for features an
 - Connect/disconnect: BluetoothService.SetConnectedAsync. ConnectAbility per device decides what
   the UI offers (audio = both ways, LE = connect only, rest = nothing). Both mechanisms only
   request a state; the result is confirmed by waiting on the DeviceWatcher, never by the HRESULT.
+- Notifications: TrayService.Notify takes a DeviceKind and tries ToastService first, falling
+  back to a tray balloon. Toasts need an AUMID plus COM activator registered under
+  HKCU\Software\Classes, which CommunityToolkit.WinUI.Notifications does for us; the raw WinRT
+  call fails with ERROR_NOT_FOUND without it. This is the project's only NuGet dependency.
+  ToastIcons renders the Tabler geometry for a DeviceKind to a PNG (a toast can only show an
+  image from disk), cached in %AppData%\BlueDock\toast-icons.
 - Settings: %AppData%\BlueDock\settings.json
 
 ## Conventions

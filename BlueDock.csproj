@@ -24,4 +24,12 @@
     <Resource Include="Assets\bluedock.ico" />
   </ItemGroup>
 
+  <ItemGroup>
+    <!-- Toasts: an unpackaged app needs an application user model id plus a COM activator
+         registered under HKCU\Software\Classes before Windows accepts a notification. This
+         package performs that registration; calling the WinRT API directly fails with
+         ERROR_NOT_FOUND (0x80070490). -->
+    <PackageReference Include="CommunityToolkit.WinUI.Notifications" Version="7.1.2" />
+  </ItemGroup>
+
 </Project>

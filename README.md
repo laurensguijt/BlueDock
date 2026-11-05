@@ -20,7 +20,8 @@ their connection status and battery level, and a button to pair a new device.
   - Mode: Licht, Donker or Automatisch. Automatisch follows the Windows colour setting and
     changes along with it while running; it is the default on a fresh install. Every theme
     has both a light and a dark palette.
-  - Notifications on connect, on disconnect, on low battery
+  - Notifications on connect, on disconnect, on low battery, as Windows toasts carrying the
+    device's own icon (see *Notifications* below)
   - Start with Windows
 - Settings are stored in `%AppData%\BlueDock\settings.json`
 
@@ -94,9 +95,22 @@ Both mechanisms only *request* a state change. BlueDock then waits for the Devic
 confirm the new state (12s for connect, 8s for disconnect) and reports a failure on the card
 if the device never gets there, which is usually a device that is switched off or out of range.
 
-## Roadmap
+## Notifications
 
-- Windows toast notifications with device icon
+Connect, disconnect and low battery show a Windows toast with the device's icon, drawn from the
+same Tabler set the panel uses: white on a filled circle, so it reads on a light and on a dark
+toast alike. The images are generated once into `%AppData%\BlueDock\toast-icons`.
+
+An unpackaged desktop app cannot simply ask for a toast. Windows only accepts one from an
+application user model id that is registered, together with a COM activator, under
+`HKCU\Software\Classes`; without that, `CreateToastNotifier` fails with `ERROR_NOT_FOUND`
+(`0x80070490`). `CommunityToolkit.WinUI.Notifications` performs that registration, which is the
+one dependency this project takes. The registration is removed again when you exit through the
+tray menu, so a click on an old toast cannot start the app from a path it no longer lives at.
+
+If Windows refuses a toast anyway, for instance when notifications are switched off by policy,
+BlueDock falls back to a tray balloon rather than showing nothing, and writes the reason to
+`%AppData%\BlueDock\toast-error.log`.
 
 ## Contributing
 
