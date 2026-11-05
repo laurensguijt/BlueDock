@@ -58,7 +58,9 @@ dotnet publish -c Release -r win-x64 --self-contained true -p:PublishSingleFile=
 iscc Installer\BlueDock.iss /DAppVersion=0.1.0 /DSourceExe=..\publish\BlueDock.exe
 ```
 
-The installer needs [Inno Setup 6](https://jrsoftware.org/isinfo.php) and writes to `dist\`.
+The installer needs [Inno Setup 6](https://jrsoftware.org/isinfo.php) (`winget install
+JRSoftware.InnoSetup`) and writes to `dist\`. Note that winget puts `ISCC.exe` under
+`%LocalAppData%\Programs`, not in Program Files.
 Cutting a release is pushing a tag: `git tag v0.1.0 && git push origin v0.1.0`.
 
 ## Project layout

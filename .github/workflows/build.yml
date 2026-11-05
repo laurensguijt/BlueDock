@@ -61,8 +61,19 @@ jobs:
       - name: Build installer
         shell: pwsh
         run: |
-          & "$env:ProgramFiles(x86)\Inno Setup 6\ISCC.exe" `
-            "Installer\BlueDock.iss" `
+          # Inno Setup lands in different places depending on how it was installed.
+          $iscc = (Get-Command iscc -ErrorAction SilentlyContinue).Source
+          if (-not $iscc) {
+            $iscc = @(
+              "${env:ProgramFiles(x86)}\Inno Setup 6\ISCC.exe",
+              "$env:ProgramFiles\Inno Setup 6\ISCC.exe",
+              "$env:LOCALAPPDATA\Programs\Inno Setup 6\ISCC.exe"
+            ) | Where-Object { Test-Path $_ } | Select-Object -First 1
+          }
+          if (-not $iscc) { throw "ISCC.exe not found" }
+          Write-Host "using $iscc"
+
+          & $iscc "Installer\BlueDock.iss" `
             "/DAppVersion=${{ steps.version.outputs.value }}" `
             "/DSourceExe=..\publish\BlueDock.exe"
           if ($LASTEXITCODE -ne 0) { throw "ISCC failed with $LASTEXITCODE" }
