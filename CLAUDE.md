@@ -15,6 +15,10 @@ Windows system-tray Bluetooth popup (WPF, .NET 8). See README.md for features an
   text and comes back empty for Bluetooth. The container property that does hold data is
   System.Devices.CategoryIds. Name guessing is only a last resort.
 - Themes: Shared.xaml (styles, all DynamicResource) + one active theme (Fluent / Glass / Tiles) swapped at merged-dictionary index 1 by ThemeService. Every theme must define the same resource keys.
+- Icons: Tabler geometries in Themes/Icons.xaml, drawn by Controls/TablerIcon.cs (stroke only,
+  24x24 grid, Foreground is inherited). Icons.xaml is merged from inside Shared.xaml so the
+  theme stays at index 1. There is no icon font: do not reintroduce Segoe glyph code points.
+  DeviceViewModel.IconKey maps a DeviceKind to a key; Icon resolves it.
 - Interop/WindowEffects.cs: DWM Mica/Acrylic (build >= 22621), fallback brush otherwise.
 - Interop/CoreAudio.cs: COM interop reaching the KS filter behind a Bluetooth audio endpoint
   (IMMDevice -> IDeviceTopology -> IConnector -> IKsControl). IKsControl is NOT available on the

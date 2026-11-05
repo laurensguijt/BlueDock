@@ -36,9 +36,9 @@
                         <ColumnDefinition Width="Auto" />
                     </Grid.ColumnDefinitions>
                     <Border Width="36" Height="36" Background="{DynamicResource Brush.Badge}" CornerRadius="{DynamicResource Radius.Badge}">
-                        <TextBlock Text="&#xE702;" FontFamily="{DynamicResource IconFont}" FontSize="18"
-                                   HorizontalAlignment="Center" VerticalAlignment="Center"
-                                   Foreground="{DynamicResource Brush.BadgeForeground}" />
+                        <c:TablerIcon Data="{DynamicResource Icon.Bluetooth}" IconSize="20"
+                                      HorizontalAlignment="Center" VerticalAlignment="Center"
+                                      Foreground="{DynamicResource Brush.BadgeForeground}" />
                     </Border>
                     <StackPanel Grid.Column="1" Margin="10,0,8,0" VerticalAlignment="Center">
                         <TextBlock Text="BlueDock" FontSize="16" FontWeight="SemiBold" />
@@ -48,7 +48,7 @@
                               IsChecked="{Binding IsRadioOn, Mode=TwoWay}"
                               Visibility="{Binding IsRadioAvailable, Converter={x:Static c:Conv.BoolToVis}}"
                               ToolTip="Bluetooth aan/uit" AutomationProperties.Name="Bluetooth aan of uit" />
-                    <Button Grid.Column="3" Style="{StaticResource Style.IconButton}" Content="&#xE713;"
+                    <Button Grid.Column="3" Style="{StaticResource Style.IconButton}" Content="{DynamicResource Icon.Settings}"
                             Command="{Binding OpenSettingsCommand}" ToolTip="Instellingen"
                             AutomationProperties.Name="Instellingen" />
                 </Grid>
@@ -87,7 +87,7 @@
                         <ColumnDefinition Width="Auto" />
                         <ColumnDefinition Width="*" />
                     </Grid.ColumnDefinitions>
-                    <Button Style="{StaticResource Style.IconButton}" Content="&#xE72B;"
+                    <Button Style="{StaticResource Style.IconButton}" Content="{DynamicResource Icon.Back}"
                             Command="{Binding CloseSettingsCommand}" ToolTip="Terug" AutomationProperties.Name="Terug" />
                     <TextBlock Grid.Column="1" Text="Instellingen" FontSize="16" FontWeight="SemiBold"
                                Margin="10,0,0,0" VerticalAlignment="Center" />

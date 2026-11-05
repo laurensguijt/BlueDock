@@ -1,0 +1,28 @@
+<ResourceDictionary xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+                    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
+
+    <!-- Tabler Icons 3.50.0, outline set - https://tabler.io/icons
+         MIT License, Copyright (c) 2020-2024 Paweł Kuna.
+
+         Each geometry is the "d" attribute(s) of the upstream SVG, concatenated. The icons are
+         drawn on a 24x24 grid with a 2 unit stroke and round caps, so TablerIcon strokes them
+         and never fills them.
+
+         To add one: take icons/outline/<name>.svg from the @tabler/icons package, drop the
+         transparent bounding path (d="M0 0h24v24H0z"), join the remaining d attributes with a
+         space, and add a PathGeometry here. Check it stays inside the 0..24 box. -->
+
+    <PathGeometry x:Key="Icon.Bluetooth" Figures="M7 8l10 8l-5 4l0 -16l5 4l-10 8" />
+    <PathGeometry x:Key="Icon.Settings" Figures="M10.325 4.317c.426 -1.756 2.924 -1.756 3.35 0a1.724 1.724 0 0 0 2.573 1.066c1.543 -.94 3.31 .826 2.37 2.37a1.724 1.724 0 0 0 1.065 2.572c1.756 .426 1.756 2.924 0 3.35a1.724 1.724 0 0 0 -1.066 2.573c.94 1.543 -.826 3.31 -2.37 2.37a1.724 1.724 0 0 0 -2.572 1.065c-.426 1.756 -2.924 1.756 -3.35 0a1.724 1.724 0 0 0 -2.573 -1.066c-1.543 .94 -3.31 -.826 -2.37 -2.37a1.724 1.724 0 0 0 -1.065 -2.572c-1.756 -.426 -1.756 -2.924 0 -3.35a1.724 1.724 0 0 0 1.066 -2.573c-.94 -1.543 .826 -3.31 2.37 -2.37c1 .608 2.296 .07 2.572 -1.065 M9 12a3 3 0 1 0 6 0a3 3 0 0 0 -6 0" />
+    <PathGeometry x:Key="Icon.Back" Figures="M5 12l14 0 M5 12l6 6 M5 12l6 -6" />
+    <PathGeometry x:Key="Icon.Add" Figures="M12 5l0 14 M5 12l14 0" />
+    <PathGeometry x:Key="Icon.ChevronDown" Figures="M6 9l6 6l6 -6" />
+    <PathGeometry x:Key="Icon.Headphones" Figures="M4 15a2 2 0 0 1 2 -2h1a2 2 0 0 1 2 2v3a2 2 0 0 1 -2 2h-1a2 2 0 0 1 -2 -2l0 -3 M15 15a2 2 0 0 1 2 -2h1a2 2 0 0 1 2 2v3a2 2 0 0 1 -2 2h-1a2 2 0 0 1 -2 -2l0 -3 M4 15v-3a8 8 0 0 1 16 0v3" />
+    <PathGeometry x:Key="Icon.Speaker" Figures="M5 5a2 2 0 0 1 2 -2h10a2 2 0 0 1 2 2v14a2 2 0 0 1 -2 2h-10a2 2 0 0 1 -2 -2l0 -14 M9 14a3 3 0 1 0 6 0a3 3 0 1 0 -6 0 M12 7l0 .01" />
+    <PathGeometry x:Key="Icon.Mouse" Figures="M6 7a4 4 0 0 1 4 -4h4a4 4 0 0 1 4 4v10a4 4 0 0 1 -4 4h-4a4 4 0 0 1 -4 -4l0 -10 M12 7l0 4" />
+    <PathGeometry x:Key="Icon.Keyboard" Figures="M2 8a2 2 0 0 1 2 -2h16a2 2 0 0 1 2 2v8a2 2 0 0 1 -2 2h-16a2 2 0 0 1 -2 -2l0 -8 M6 10l0 .01 M10 10l0 .01 M14 10l0 .01 M18 10l0 .01 M6 14l0 .01 M18 14l0 .01 M10 14l4 .01" />
+    <PathGeometry x:Key="Icon.Phone" Figures="M6 5a2 2 0 0 1 2 -2h8a2 2 0 0 1 2 2v14a2 2 0 0 1 -2 2h-8a2 2 0 0 1 -2 -2v-14 M11 4h2 M12 17v.01" />
+    <PathGeometry x:Key="Icon.Gamepad" Figures="M2 8a2 2 0 0 1 2 -2h16a2 2 0 0 1 2 2v8a2 2 0 0 1 -2 2h-16a2 2 0 0 1 -2 -2l0 -8 M6 12h4m-2 -2v4 M15 11l0 .01 M18 13l0 .01" />
+    <PathGeometry x:Key="Icon.Computer" Figures="M3 5a1 1 0 0 1 1 -1h16a1 1 0 0 1 1 1v10a1 1 0 0 1 -1 1h-16a1 1 0 0 1 -1 -1v-10 M7 20h10 M9 16v4 M15 16v4" />
+
+</ResourceDictionary>

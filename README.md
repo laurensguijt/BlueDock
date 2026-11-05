@@ -56,9 +56,13 @@ Services/
 Interop/
   WindowEffects.cs         DWM: Mica/Acrylic, dark mode, rounded corners
   CoreAudio.cs             Core Audio + Kernel Streaming interop for audio connect/disconnect
-Controls/                  BatteryRing, converters
+Controls/
+  BatteryRing.cs           circular battery indicator (Tiles theme)
+  TablerIcon.cs            draws an icon from Themes/Icons.xaml
+  Converters.cs            shared value converters
 Themes/
   Shared.xaml              theme independent styles (buttons, switch, dropdown)
+  Icons.xaml               Tabler icon geometries
   Fluent.xaml / Glass.xaml / Tiles.xaml
 ```
 
@@ -93,6 +97,13 @@ Issues and pull requests are welcome. Keep to the conventions in `CLAUDE.md`:
 UI text in Dutch, code and comments in English, explicit `using` directives
 (`ImplicitUsings` is disabled), and never show estimated data such as a guessed
 battery level — leave it out instead.
+
+## Credits
+
+Icons are [Tabler Icons](https://tabler.io/icons) (MIT, Copyright (c) 2020-2024 Paweł Kuna),
+embedded as path geometries in `Themes/Icons.xaml`. Nothing has to be installed for them: they
+are vector data, so they scale at any DPI, follow the theme colour, and work the same on
+Windows 10, which has no Segoe Fluent Icons font.
 
 ## License
 

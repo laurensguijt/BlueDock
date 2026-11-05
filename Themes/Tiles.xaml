@@ -78,7 +78,7 @@
                     <RowDefinition Height="Auto" />
                     <RowDefinition Height="Auto" />
                 </Grid.RowDefinitions>
-                <TextBlock Text="{Binding Glyph}" FontFamily="{DynamicResource IconFont}" FontSize="22"
+                <c:TablerIcon Data="{Binding Icon}" IconSize="22"
                            HorizontalAlignment="Left" VerticalAlignment="Top" Foreground="White" />
                 <Grid Width="38" Height="38" HorizontalAlignment="Right" VerticalAlignment="Top"
                       Visibility="{Binding HasBattery, Converter={x:Static c:Conv.BoolToVis}}">
@@ -115,7 +115,7 @@
                         <RowDefinition Height="*" />
                         <RowDefinition Height="Auto" />
                     </Grid.RowDefinitions>
-                    <TextBlock Text="{Binding Glyph}" FontFamily="{DynamicResource IconFont}" FontSize="22"
+                    <c:TablerIcon Data="{Binding Icon}" IconSize="22"
                                HorizontalAlignment="Left" VerticalAlignment="Top" Foreground="{DynamicResource Brush.TextSecondary}" />
                     <StackPanel Grid.Row="1">
                         <TextBlock Text="{Binding Name}" FontSize="14" FontWeight="SemiBold" Foreground="{DynamicResource Brush.Text}"

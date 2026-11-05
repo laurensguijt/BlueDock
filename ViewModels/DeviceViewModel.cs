@@ -2,6 +2,7 @@ using System;
 using System.Threading;
 using System.Threading.Tasks;
 using System.Windows;
+using System.Windows.Media;
 using BlueDock.Services;
 
 namespace BlueDock.ViewModels
@@ -50,7 +51,13 @@ namespace BlueDock.ViewModels
         public DeviceKind Kind
         {
             get => _kind;
-            private set { if (Set(ref _kind, value)) { OnPropertyChanged(nameof(Glyph)); OnPropertyChanged(nameof(KindText)); } }
+            private set
+            {
+                if (!Set(ref _kind, value)) return;
+                OnPropertyChanged(nameof(IconKey));
+                OnPropertyChanged(nameof(Icon));
+                OnPropertyChanged(nameof(KindText));
+            }
         }
 
         public int? Battery
@@ -197,18 +204,21 @@ namespace BlueDock.ViewModels
             _ => "Bluetooth-apparaat",
         };
 
-        /// <summary>Segoe Fluent Icons / Segoe MDL2 Assets glyph.</summary>
-        public string Glyph => Kind switch
+        /// <summary>Resource key of the Tabler icon for this device type (see Themes/Icons.xaml).</summary>
+        public string IconKey => Kind switch
         {
-            DeviceKind.Headphones => "",
-            DeviceKind.Speaker => "",
-            DeviceKind.Mouse => "",
-            DeviceKind.Keyboard => "",
-            DeviceKind.Phone => "",
-            DeviceKind.Gamepad => "",
-            DeviceKind.Computer => "",
-            _ => "",
+            DeviceKind.Headphones => "Icon.Headphones",
+            DeviceKind.Speaker => "Icon.Speaker",
+            DeviceKind.Mouse => "Icon.Mouse",
+            DeviceKind.Keyboard => "Icon.Keyboard",
+            DeviceKind.Phone => "Icon.Phone",
+            DeviceKind.Gamepad => "Icon.Gamepad",
+            DeviceKind.Computer => "Icon.Computer",
+            _ => "Icon.Bluetooth",
         };
+
+        /// <summary>The icon geometry itself; the icons live in a theme independent dictionary.</summary>
+        public Geometry? Icon => Application.Current?.TryFindResource(IconKey) as Geometry;
 
         public void Update(DeviceSnapshot s)
         {
