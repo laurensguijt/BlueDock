@@ -1,0 +1,37 @@
+# Build output
+bin/
+obj/
+[Dd]ebug/
+[Rr]elease/
+[Ww][Ii][Nn]32/
+x64/
+x86/
+publish/
+*.user
+*.suo
+*.cache
+
+# Visual Studio / Rider / VS Code
+.vs/
+.idea/
+*.csproj.user
+*.sln.docstates
+
+# NuGet
+*.nupkg
+packages/
+.nuget/
+
+# Test / coverage
+TestResults/
+*.coverage
+*.trx
+
+# Nextcloud sync leftovers
+*.sync-conflict-*
+.~lock.*#
+*~
+
+# Windows
+Thumbs.db
+desktop.ini
