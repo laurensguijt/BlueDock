@@ -20,7 +20,8 @@ their connection status and battery level, and a button to pair a new device.
   - Mode: Licht, Donker or Automatisch. Automatisch follows the Windows colour setting and
     changes along with it while running; it is the default on a fresh install. Every theme
     has both a light and a dark palette.
-  - Notifications on connect, on disconnect, on low battery
+  - Notifications on connect, on disconnect, on low battery, as Windows toasts carrying the
+    device's own icon (see *Notifications* below)
   - Start with Windows
 - Settings are stored in `%AppData%\BlueDock\settings.json`
 
@@ -116,34 +117,32 @@ if the device never gets there, which is usually a device that is switched off o
 
 ## Notifications
 
-Connect, disconnect and low battery show a tray balloon. On Windows 11 the shell draws those
-through its own notification UI, so they already look like a toast and land in the notification
-centre; what a real toast would add is the device's icon instead of the app icon.
+Connect, disconnect and low battery show a Windows toast carrying the device's icon, drawn from
+the same Tabler set the panel uses: white on a filled circle, so it reads on a light and on a
+dark toast alike. The images are generated once into `%AppData%\BlueDock\toast-icons`.
 
-Modern Windows toasts, with the device icon, were tried and did not work for a portable exe.
-The findings are kept here so nobody has to repeat the afternoon:
+Toasts only work when BlueDock is **installed**. Windows accepts a notification from an
+unpackaged app only for an application user model id it can resolve, and the installer's Start
+Menu shortcut is what provides one (`LaurensGuijt.BlueDock`). Without it `CreateToastNotifier`
+fails with `ERROR_NOT_FOUND` (`0x80070490`). So the portable build, and a run straight from the
+build folder, fall back to a tray balloon. On Windows 11 the shell draws those through the same
+notification UI, so the visible difference is the app icon instead of the device icon.
 
-- An unpackaged app cannot simply ask for a toast. Windows only accepts one from an application
-  user model id registered, together with a COM activator, under `HKCU\Software\Classes`;
-  without that, `CreateToastNotifier` fails with `ERROR_NOT_FOUND` (`0x80070490`).
-- Registering it by hand, with a Start Menu shortcut carrying the AUMID and a
-  `ToastActivatorCLSID`, was not enough. `CommunityToolkit.WinUI.Notifications` does get past
-  `CreateToastNotifier`, but that only means the call returned.
-- Nothing was ever delivered. The Windows notification store (`wpndatabase.db`, under
-  `%LocalAppData%\Microsoft\Windows\Notifications`) held no handler and no notification for the
-  app in any of these variants, while `ToastNotifier.Setting` still reported `Enabled`. No group
-  policy blocks notifications on the machine this was tested on.
-- The unpackaged apps that do get toasts there (PowerToys, Outlook) are properly installed, with
-  a Start Menu shortcut Windows has long since indexed. That is the difference, and it is not
-  something a portable exe run from a build folder can arrange on the spot.
+BlueDock decides which of the two it uses once at startup, by checking that the shortcut exists
+and that a notifier can be created, and writes the outcome to
+`%AppData%\BlueDock\notifications.log`. Deciding up front matters, because there is no reliable
+way to tell afterwards whether a toast arrived:
 
-So this needs an installer, not more interop. **Do not judge a toast by whether `Show()` threw**:
-it returns happily while Windows discards the notification, which also defeats any fallback that
-trusts it. Check `wpndatabase.db` instead.
+- **`Show()` returning without throwing proves nothing.** It returns happily while Windows
+  discards the notification, which is how an earlier attempt managed to show nothing at all.
+- **The notification store is not proof either.** `wpndatabase.db` under
+  `%LocalAppData%\Microsoft\Windows\Notifications` misses toasts that were really displayed, so
+  reading it gives false negatives and sent this work down a blind alley twice.
 
-## Roadmap
+Which leaves looking at the screen. Worth remembering before trusting a clever check.
 
-- Toast notifications with device icon, once there is an installer that registers the app
+Clicking a toast does not open the panel. That needs a COM activator registered alongside the
+AUMID, which is not worth it for a tray app that is one click away anyway.
 
 ## Contributing
 

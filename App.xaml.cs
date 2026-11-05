@@ -41,23 +41,25 @@ namespace BlueDock
             {
                 var cfg = Settings.Current;
                 if (args.IsConnected && cfg.NotifyOnConnect)
-                    _tray.Notify("Verbonden", args.Name);
+                    _tray.Notify("Verbonden", args.Name, args.Kind);
                 else if (!args.IsConnected && cfg.NotifyOnDisconnect)
-                    _tray.Notify("Verbinding verbroken", args.Name);
+                    _tray.Notify("Verbinding verbroken", args.Name, args.Kind);
             };
 
             _bluetooth.LowBattery += (s, args) =>
             {
                 if (Settings.Current.NotifyOnLowBattery)
-                    _tray.Notify("Accu bijna leeg", $"{args.Name}: {args.Percent}%");
+                    _tray.Notify("Accu bijna leeg", $"{args.Name}: {args.Percent}%", args.Kind);
             };
 
+            ToastService.LogRoute();
             _bluetooth.Start();
             _ = radio.InitializeAsync();
         }
 
         private void ExitApp()
         {
+            ToastService.Clear();
             _bluetooth?.Stop();
             _tray?.Dispose();
             _popup?.ForceClose();

@@ -37,10 +37,17 @@ namespace BlueDock.Services
             };
         }
 
-        public void Notify(string title, string text)
+        /// <summary>
+        /// Shows a Windows toast carrying the device's icon, falling back to a tray balloon
+        /// when toasts are unavailable on this machine.
+        /// </summary>
+        public void Notify(string title, string text, DeviceKind kind = DeviceKind.Other)
         {
             Application.Current.Dispatcher.BeginInvoke(() =>
-                _icon.ShowBalloonTip(4000, title, text, Forms.ToolTipIcon.None));
+            {
+                if (ToastService.Show(title, text, kind)) return;
+                _icon.ShowBalloonTip(4000, title, text, Forms.ToolTipIcon.None);
+            });
         }
 
         public static void OpenUri(string uri)

@@ -34,12 +34,16 @@ Windows system-tray Bluetooth popup (WPF, .NET 8). See README.md for features an
 - Connect/disconnect: BluetoothService.SetConnectedAsync. ConnectAbility per device decides what
   the UI offers (audio = both ways, LE = connect only, rest = nothing). Both mechanisms only
   request a state; the result is confirmed by waiting on the DeviceWatcher, never by the HRESULT.
-- Notifications are tray balloons (TrayService.Notify). Windows toasts were tried and reverted:
-  an unpackaged exe gets past CreateToastNotifier once an AUMID plus COM activator are registered,
-  but Windows still never stores or shows the notification (verified against wpndatabase.db)
-  unless the app is properly installed. ToastNotifier.Setting reports Enabled regardless, and
-  Show() does not throw, so neither can be used to detect delivery. Read the Notifications
-  section in README.md before attempting this again.
+- Notifications: TrayService.Notify takes a DeviceKind, tries ToastService and falls back to a
+  tray balloon. Toasts work only for an installed copy: Windows needs a resolvable AUMID, which
+  comes from the installer's Start Menu shortcut (LaurensGuijt.BlueDock, set in
+  Installer/BlueDock.iss). Without it CreateToastNotifier throws ERROR_NOT_FOUND. Availability
+  is decided once at startup and logged to %AppData%\BlueDock\notifications.log. Do not try to
+  detect delivery afterwards: Show() returns fine while Windows discards a toast, AND
+  wpndatabase.db misses toasts that really appeared, so it gives false negatives. Both misled
+  this work; ask the person what they saw. ToastIcons renders the Tabler geometry for a
+  DeviceKind to a PNG (a toast can only show an image from disk), cached in
+  %AppData%\BlueDock\toast-icons. Plain WinRT, no NuGet dependency.
 - Settings: %AppData%\BlueDock\settings.json
 
 ## Conventions

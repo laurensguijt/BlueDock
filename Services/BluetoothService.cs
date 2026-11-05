@@ -33,16 +33,30 @@ namespace BlueDock.Services
 
     public sealed class ConnectionChangedEventArgs : EventArgs
     {
-        public ConnectionChangedEventArgs(string name, bool isConnected) { Name = name; IsConnected = isConnected; }
+        public ConnectionChangedEventArgs(string name, bool isConnected, DeviceKind kind)
+        {
+            Name = name;
+            IsConnected = isConnected;
+            Kind = kind;
+        }
+
         public string Name { get; }
         public bool IsConnected { get; }
+        public DeviceKind Kind { get; }
     }
 
     public sealed class LowBatteryEventArgs : EventArgs
     {
-        public LowBatteryEventArgs(string name, int percent) { Name = name; Percent = percent; }
+        public LowBatteryEventArgs(string name, int percent, DeviceKind kind)
+        {
+            Name = name;
+            Percent = percent;
+            Kind = kind;
+        }
+
         public string Name { get; }
         public int Percent { get; }
+        public DeviceKind Kind { get; }
     }
 
     /// <summary>
@@ -209,7 +223,7 @@ namespace BlueDock.Services
             if (connectionChanged)
             {
                 if (IsLive)
-                    ConnectionChanged?.Invoke(this, new ConnectionChangedEventArgs(entry.Name, entry.IsConnected));
+                    ConnectionChanged?.Invoke(this, new ConnectionChangedEventArgs(entry.Name, entry.IsConnected, entry.Kind));
 
                 if (entry.IsConnected)
                     _ = RefreshBatteryAfterConnectAsync(entry);
@@ -447,7 +461,7 @@ namespace BlueDock.Services
                 if (pct <= threshold && !entry.LowBatteryNotified)
                 {
                     entry.LowBatteryNotified = true;
-                    LowBattery?.Invoke(this, new LowBatteryEventArgs(entry.Name, pct));
+                    LowBattery?.Invoke(this, new LowBatteryEventArgs(entry.Name, pct, entry.Kind));
                 }
                 else if (pct > threshold + 5)
                 {
