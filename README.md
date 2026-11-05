@@ -20,8 +20,7 @@ their connection status and battery level, and a button to pair a new device.
   - Mode: Licht, Donker or Automatisch. Automatisch follows the Windows colour setting and
     changes along with it while running; it is the default on a fresh install. Every theme
     has both a light and a dark palette.
-  - Notifications on connect, on disconnect, on low battery, as Windows toasts carrying the
-    device's own icon (see *Notifications* below)
+  - Notifications on connect, on disconnect, on low battery
   - Start with Windows
 - Settings are stored in `%AppData%\BlueDock\settings.json`
 
@@ -97,20 +96,32 @@ if the device never gets there, which is usually a device that is switched off o
 
 ## Notifications
 
-Connect, disconnect and low battery show a Windows toast with the device's icon, drawn from the
-same Tabler set the panel uses: white on a filled circle, so it reads on a light and on a dark
-toast alike. The images are generated once into `%AppData%\BlueDock\toast-icons`.
+Connect, disconnect and low battery show a tray balloon.
 
-An unpackaged desktop app cannot simply ask for a toast. Windows only accepts one from an
-application user model id that is registered, together with a COM activator, under
-`HKCU\Software\Classes`; without that, `CreateToastNotifier` fails with `ERROR_NOT_FOUND`
-(`0x80070490`). `CommunityToolkit.WinUI.Notifications` performs that registration, which is the
-one dependency this project takes. The registration is removed again when you exit through the
-tray menu, so a click on an old toast cannot start the app from a path it no longer lives at.
+Modern Windows toasts, with the device icon, were tried and did not work for a portable exe.
+The findings are kept here so nobody has to repeat the afternoon:
 
-If Windows refuses a toast anyway, for instance when notifications are switched off by policy,
-BlueDock falls back to a tray balloon rather than showing nothing, and writes the reason to
-`%AppData%\BlueDock\toast-error.log`.
+- An unpackaged app cannot simply ask for a toast. Windows only accepts one from an application
+  user model id registered, together with a COM activator, under `HKCU\Software\Classes`;
+  without that, `CreateToastNotifier` fails with `ERROR_NOT_FOUND` (`0x80070490`).
+- Registering it by hand, with a Start Menu shortcut carrying the AUMID and a
+  `ToastActivatorCLSID`, was not enough. `CommunityToolkit.WinUI.Notifications` does get past
+  `CreateToastNotifier`, but that only means the call returned.
+- Nothing was ever delivered. The Windows notification store (`wpndatabase.db`, under
+  `%LocalAppData%\Microsoft\Windows\Notifications`) held no handler and no notification for the
+  app in any of these variants, while `ToastNotifier.Setting` still reported `Enabled`. No group
+  policy blocks notifications on the machine this was tested on.
+- The unpackaged apps that do get toasts there (PowerToys, Outlook) are properly installed, with
+  a Start Menu shortcut Windows has long since indexed. That is the difference, and it is not
+  something a portable exe run from a build folder can arrange on the spot.
+
+So this needs an installer, not more interop. **Do not judge a toast by whether `Show()` threw**:
+it returns happily while Windows discards the notification, which also defeats any fallback that
+trusts it. Check `wpndatabase.db` instead.
+
+## Roadmap
+
+- Toast notifications with device icon, once there is an installer that registers the app
 
 ## Contributing
 
