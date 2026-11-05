@@ -3,6 +3,7 @@ name: build
 on:
   push:
     branches: [main]
+    tags: ['v*']
   pull_request:
   workflow_dispatch:
 
@@ -22,10 +23,72 @@ jobs:
       - name: Build
         run: dotnet build --no-restore -c Release
 
-      - name: Publish single file
-        run: dotnet publish -c Release -r win-x64 --self-contained false -p:PublishSingleFile=true -o publish
+  release:
+    # Only for a version tag, and only once the ordinary build is clean.
+    if: startsWith(github.ref, 'refs/tags/v')
+    needs: build
+    runs-on: windows-latest
+    permissions:
+      contents: write
+    steps:
+      - uses: actions/checkout@v4
 
-      - uses: actions/upload-artifact@v4
+      - uses: actions/setup-dotnet@v4
         with:
-          name: BlueDock
-          path: publish/BlueDock.exe
+          dotnet-version: '8.0.x'
+
+      - name: Version from tag
+        id: version
+        shell: pwsh
+        run: |
+          $v = "${{ github.ref_name }}" -replace '^v',''
+          "value=$v" | Out-File -FilePath $env:GITHUB_OUTPUT -Append -Encoding utf8
+          Write-Host "version: $v"
+
+      # Self-contained: the exe carries its own .NET, so nothing has to be installed first.
+      - name: Publish single file
+        run: >
+          dotnet publish -c Release -r win-x64 --self-contained true
+          -p:PublishSingleFile=true
+          -p:IncludeNativeLibrariesForSelfExtract=true
+          -p:EnableCompressionInSingleFile=true
+          -p:Version=${{ steps.version.outputs.value }}
+          -o publish
+
+      - name: Install Inno Setup
+        run: choco install innosetup --no-progress -y
+
+      - name: Build installer
+        shell: pwsh
+        run: |
+          & "$env:ProgramFiles(x86)\Inno Setup 6\ISCC.exe" `
+            "Installer\BlueDock.iss" `
+            "/DAppVersion=${{ steps.version.outputs.value }}" `
+            "/DSourceExe=..\publish\BlueDock.exe"
+          if ($LASTEXITCODE -ne 0) { throw "ISCC failed with $LASTEXITCODE" }
+
+      - name: Name the portable build
+        shell: pwsh
+        run: |
+          New-Item -ItemType Directory -Force dist | Out-Null
+          Copy-Item publish\BlueDock.exe "dist\BlueDock-${{ steps.version.outputs.value }}-portable.exe"
+          Get-ChildItem dist | Format-Table Name, Length
+
+      - name: Publish the release
+        shell: pwsh
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          gh release create "${{ github.ref_name }}" `
+            (Get-ChildItem dist\*.exe | ForEach-Object { $_.FullName }) `
+            --title "BlueDock ${{ steps.version.outputs.value }}" `
+            --notes @"
+          **Installer** (`BlueDock-${{ steps.version.outputs.value }}-setup.exe`) installs for the
+          current user, needs no administrator rights and adds a Start Menu entry.
+
+          **Portable** (`BlueDock-${{ steps.version.outputs.value }}-portable.exe`) runs from
+          anywhere without installing. The first start takes a moment while it unpacks itself.
+
+          Both carry their own .NET, so nothing has to be installed first. The app lives in the
+          system tray; exit it through the tray menu.
+          "@

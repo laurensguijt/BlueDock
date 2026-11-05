@@ -24,24 +24,42 @@ their connection status and battery level, and a button to pair a new device.
   - Start with Windows
 - Settings are stored in `%AppData%\BlueDock\settings.json`
 
-## Requirements
+## Install
 
-- Windows 10 2004 (build 19041) or newer. Mica / Acrylic backdrops need Windows 11 22H2 or newer; older builds use a solid fallback.
-- [.NET 8 SDK](https://dotnet.microsoft.com/download/dotnet/8.0) to build
+Grab the newest [release](https://github.com/laurensguijt/BlueDock/releases):
+
+- **`BlueDock-x.y.z-setup.exe`** installs for the current user, so it never asks for
+  administrator rights, and adds a Start Menu entry. Uninstall through Windows Settings.
+- **`BlueDock-x.y.z-portable.exe`** runs from anywhere without installing. The first start takes
+  a moment while it unpacks itself.
+
+Both carry their own .NET, so nothing has to be installed first. BlueDock lives in the system
+tray; "Starten met Windows" is a setting inside the app, not something the installer arranges.
+
+Windows 10 2004 (build 19041) or newer. Mica and Acrylic backdrops need Windows 11 22H2 or
+newer; older builds fall back to a solid background.
 
 ## Build and run
 
+Needs the [.NET 8 SDK](https://dotnet.microsoft.com/download/dotnet/8.0).
+
 ```powershell
-cd BlueDock
 dotnet run
 ```
 
-Single portable exe:
+The release builds are produced by [the workflow](.github/workflows/build.yml) on a version tag.
+To make one by hand:
 
 ```powershell
-dotnet publish -c Release -r win-x64 --self-contained false -p:PublishSingleFile=true
-# output: bin\Release\net8.0-windows10.0.19041.0\win-x64\publish\BlueDock.exe
+dotnet publish -c Release -r win-x64 --self-contained true -p:PublishSingleFile=true -p:IncludeNativeLibrariesForSelfExtract=true -p:EnableCompressionInSingleFile=true -o publish
 ```
+
+```powershell
+iscc Installer\BlueDock.iss /DAppVersion=0.1.0 /DSourceExe=..\publish\BlueDock.exe
+```
+
+The installer needs [Inno Setup 6](https://jrsoftware.org/isinfo.php) and writes to `dist\`.
+Cutting a release is pushing a tag: `git tag v0.1.0 && git push origin v0.1.0`.
 
 ## Project layout
 
