@@ -57,12 +57,12 @@ namespace BlueDock.ViewModels
         {
             get
             {
-                if (IsRadioAvailable && !IsRadioOn) return "Bluetooth staat uit";
+                if (IsRadioAvailable && !IsRadioOn) return "Bluetooth is off";
                 return Connected.Count switch
                 {
-                    0 => "Geen apparaten verbonden",
-                    1 => "1 apparaat verbonden",
-                    var n => $"{n} apparaten verbonden",
+                    0 => "No devices connected",
+                    1 => "1 device connected",
+                    var n => $"{n} devices connected",
                 };
             }
         }
@@ -92,11 +92,11 @@ namespace BlueDock.ViewModels
         public bool IsUpdateAvailable => _update != null;
 
         public string UpdateTitle =>
-            _update == null ? "" : $"Versie {_update.Version.ToString(3)} is beschikbaar";
+            _update == null ? "" : $"Version {_update.Version.ToString(3)} is available";
 
         public string UpdateStatus => _updateStatus ?? (_update == null ? "" : Megabytes(_update.Size));
 
-        public string UpdateActionText => _isUpdating ? "Bezig…" : "Bijwerken";
+        public string UpdateActionText => _isUpdating ? "Working…" : "Update";
 
         /// <summary>
         /// Asks GitHub whether there is something newer. Runs in the background and stays quiet
@@ -125,20 +125,20 @@ namespace BlueDock.ViewModels
             if (update == null) return;
 
             _isUpdating = true;
-            SetUpdateStatus("Downloaden…");
+            SetUpdateStatus("Downloading…");
 
-            var progress = new Progress<int>(p => SetUpdateStatus($"Downloaden… {p}%"));
+            var progress = new Progress<int>(p => SetUpdateStatus($"Downloading… {p}%"));
             bool started = await UpdateService.DownloadAndRunAsync(update, progress);
 
             if (started)
             {
                 // The installer closes this copy itself; leave the panel saying what happens.
-                SetUpdateStatus("Installatieprogramma gestart");
+                SetUpdateStatus("Installer started");
                 return;
             }
 
             _isUpdating = false;
-            SetUpdateStatus("Downloaden niet gelukt — open de releasepagina");
+            SetUpdateStatus("Download failed — open the release page");
             InstallUpdateCommand.RaiseCanExecuteChanged();
         }
 
@@ -153,7 +153,7 @@ namespace BlueDock.ViewModels
         }
 
         private static string Megabytes(long bytes) =>
-            bytes <= 0 ? "" : $"{bytes / 1048576.0:0.#} MB downloaden";
+            bytes <= 0 ? "" : $"{bytes / 1048576.0:0.#} MB to download";
 
         public bool CheckForUpdates
         {
@@ -243,10 +243,10 @@ namespace BlueDock.ViewModels
         /// <summary>Windows publishes battery levels slowly, so anything under a minute is waste.</summary>
         public IReadOnlyList<KeyValuePair<int, string>> BatteryRefreshOptions { get; } = new[]
         {
-            new KeyValuePair<int, string>(60, "elke minuut"),
-            new KeyValuePair<int, string>(120, "elke 2 minuten"),
-            new KeyValuePair<int, string>(300, "elke 5 minuten"),
-            new KeyValuePair<int, string>(600, "elke 10 minuten"),
+            new KeyValuePair<int, string>(60, "every minute"),
+            new KeyValuePair<int, string>(120, "every 2 minutes"),
+            new KeyValuePair<int, string>(300, "every 5 minutes"),
+            new KeyValuePair<int, string>(600, "every 10 minutes"),
         };
 
         public int BatteryRefreshSeconds

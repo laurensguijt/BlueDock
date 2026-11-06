@@ -17,10 +17,10 @@ namespace BlueDock.Services
             _popup = popup;
 
             var menu = new Forms.ContextMenuStrip();
-            menu.Items.Add("BlueDock openen", null, (s, e) => _popup.ShowPopup());
-            menu.Items.Add("Bluetooth-instellingen van Windows", null, (s, e) => OpenUri("ms-settings:bluetooth"));
+            menu.Items.Add("Open BlueDock", null, (s, e) => _popup.ShowPopup());
+            menu.Items.Add("Windows Bluetooth settings", null, (s, e) => OpenUri("ms-settings:bluetooth"));
             menu.Items.Add(new Forms.ToolStripSeparator());
-            menu.Items.Add("Afsluiten", null, (s, e) => exit());
+            menu.Items.Add("Exit", null, (s, e) => exit());
 
             _icon = new Forms.NotifyIcon
             {

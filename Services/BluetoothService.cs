@@ -194,7 +194,7 @@ namespace BlueDock.Services
             var entry = new Entry
             {
                 Id = info.Id,
-                Name = string.IsNullOrWhiteSpace(info.Name) ? "Onbekend apparaat" : info.Name,
+                Name = string.IsNullOrWhiteSpace(info.Name) ? "Unknown device" : info.Name,
                 IsConnected = GetBool(info.Properties, IsConnectedKey),
                 ContainerId = GetGuid(info.Properties, ContainerIdKey),
                 IsLowEnergy = isLe,

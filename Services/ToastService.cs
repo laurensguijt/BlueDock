@@ -41,7 +41,7 @@ namespace BlueDock.Services
 
             if (!File.Exists(shortcut))
             {
-                Unavailable = "niet geinstalleerd (geen snelkoppeling in het startmenu)";
+                Unavailable = "not installed (no Start Menu shortcut)";
                 return null;
             }
 
@@ -50,7 +50,7 @@ namespace BlueDock.Services
                 var notifier = ToastNotificationManager.CreateToastNotifier(Aumid);
                 if (notifier.Setting != NotificationSetting.Enabled)
                 {
-                    Unavailable = "meldingen staan uit: " + notifier.Setting;
+                    Unavailable = "notifications are off: " + notifier.Setting;
                     return null;
                 }
                 return notifier;
@@ -71,8 +71,8 @@ namespace BlueDock.Services
             try
             {
                 string line = IsAvailable
-                    ? "toasts actief (" + Aumid + ")"
-                    : "tray-ballonnen, want toasts zijn niet beschikbaar: " + Unavailable;
+                    ? "toasts active (" + Aumid + ")"
+                    : "tray balloons, because toasts are unavailable: " + Unavailable;
                 File.WriteAllText(Path.Combine(SettingsService.Folder, "notifications.log"),
                                   DateTime.Now + "  " + line);
             }

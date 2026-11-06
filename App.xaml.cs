@@ -41,15 +41,15 @@ namespace BlueDock
             {
                 var cfg = Settings.Current;
                 if (args.IsConnected && cfg.NotifyOnConnect)
-                    _tray.Notify("Verbonden", args.Name, args.Kind);
+                    _tray.Notify("Connected", args.Name, args.Kind);
                 else if (!args.IsConnected && cfg.NotifyOnDisconnect)
-                    _tray.Notify("Verbinding verbroken", args.Name, args.Kind);
+                    _tray.Notify("Disconnected", args.Name, args.Kind);
             };
 
             _bluetooth.LowBattery += (s, args) =>
             {
                 if (Settings.Current.NotifyOnLowBattery)
-                    _tray.Notify("Accu bijna leeg", $"{args.Name}: {args.Percent}%", args.Kind);
+                    _tray.Notify("Battery low", $"{args.Name}: {args.Percent}%", args.Kind);
             };
 
             ToastService.LogRoute();

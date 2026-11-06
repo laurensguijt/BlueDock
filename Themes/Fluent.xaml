@@ -53,14 +53,14 @@
                         Content="{DynamicResource Icon.Volume}"
                         Command="{Binding UseAsOutputCommand}"
                         Visibility="{Binding CanUseAsOutput, Converter={x:Static c:Conv.BoolToVis}}"
-                        ToolTip="Geluid naar dit apparaat sturen"
-                        AutomationProperties.Name="Geluid naar dit apparaat sturen" />
+                        ToolTip="Send sound to this device"
+                        AutomationProperties.Name="Send sound to this device" />
                 <Button Grid.Column="4" Style="{DynamicResource Style.DeviceButton}" Margin="10,0,0,0"
                         VerticalAlignment="Center" Content="{Binding ActionText}"
                         Command="{Binding ToggleConnectionCommand}"
                         Visibility="{Binding CanToggle, Converter={x:Static c:Conv.BoolToVis}}"
-                        ToolTip="Verbinding met dit apparaat verbreken"
-                        AutomationProperties.Name="Verbinding verbreken" />
+                        ToolTip="Disconnect this device"
+                        AutomationProperties.Name="Disconnect" />
             </Grid>
         </Border>
         <DataTemplate.Triggers>
@@ -68,7 +68,7 @@
                 <Setter TargetName="OutputBtn" Property="Background" Value="{DynamicResource Brush.Accent}" />
                 <Setter TargetName="OutputBtn" Property="BorderBrush" Value="{DynamicResource Brush.Accent}" />
                 <Setter TargetName="OutputBtn" Property="Foreground" Value="{DynamicResource Brush.OnAccent}" />
-                <Setter TargetName="OutputBtn" Property="ToolTip" Value="Het geluid gaat nu hierheen" />
+                <Setter TargetName="OutputBtn" Property="ToolTip" Value="Sound is going here" />
             </DataTrigger>
             <DataTrigger Binding="{Binding IsBatteryLow}" Value="True">
                 <Setter TargetName="Status" Property="Foreground" Value="{DynamicResource Brush.Warning}" />
@@ -80,7 +80,7 @@
 
     <DataTemplate x:Key="Template.PairedItem">
         <Button Style="{DynamicResource Style.CardButton}" Command="{Binding ToggleConnectionCommand}"
-                ToolTip="Klik om te verbinden" AutomationProperties.Name="Verbinden">
+                ToolTip="Click to connect" AutomationProperties.Name="Connect">
     <Border x:Name="Bd" Background="Transparent" CornerRadius="6" Padding="12,10" Margin="0,0,0,2">
                 <Grid>
                     <Grid.ColumnDefinitions>

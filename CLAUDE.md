@@ -73,7 +73,7 @@ Windows system-tray Bluetooth popup (WPF, .NET 8). See README.md for features an
   than being made public.
 
 ## Conventions
-- UI text in Dutch, code and comments in English
+- Everything in English: interface text, code and comments
 - ImplicitUsings is disabled (WinForms + WPF name clashes): add explicit usings
 - WinForms is only used for the NotifyIcon; alias it as `Forms`
 - Never estimate missing data (e.g. battery): show nothing instead

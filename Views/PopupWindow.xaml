@@ -3,7 +3,7 @@
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         xmlns:c="clr-namespace:BlueDock.Controls"
         Title="BlueDock"
-        Width="360"
+        Width="400"
         SizeToContent="Height"
         WindowStyle="None"
         ResizeMode="NoResize"
@@ -47,15 +47,15 @@
                     <CheckBox Grid.Column="2" Style="{StaticResource Style.Switch}" Margin="0,0,6,0"
                               IsChecked="{Binding IsRadioOn, Mode=TwoWay}"
                               Visibility="{Binding IsRadioAvailable, Converter={x:Static c:Conv.BoolToVis}}"
-                              ToolTip="Bluetooth aan/uit" AutomationProperties.Name="Bluetooth aan of uit" />
+                              ToolTip="Bluetooth on/off" AutomationProperties.Name="Bluetooth on or off" />
                     <Button Grid.Column="3" Style="{StaticResource Style.IconButton}" Content="{DynamicResource Icon.Settings}"
-                            Command="{Binding OpenSettingsCommand}" ToolTip="Instellingen"
-                            AutomationProperties.Name="Instellingen" />
+                            Command="{Binding OpenSettingsCommand}" ToolTip="Settings"
+                            AutomationProperties.Name="Settings" />
                 </Grid>
 
                 <!-- Footer -->
                 <Button DockPanel.Dock="Bottom" Style="{StaticResource Style.PrimaryButton}" Margin="0,12,0,0"
-                        Content="Apparaat toevoegen" Command="{Binding AddDeviceCommand}" />
+                        Content="Add a device" Command="{Binding AddDeviceCommand}" />
 
                 <!-- Only here when a newer release exists; docked above the footer button -->
                 <Border DockPanel.Dock="Bottom" Margin="0,12,0,0" Padding="12,8"
@@ -76,20 +76,20 @@
                         <Button Grid.Column="1" Style="{DynamicResource Style.DeviceButton}" Margin="10,0,0,0"
                                 VerticalAlignment="Center" Content="{Binding UpdateActionText}"
                                 Command="{Binding InstallUpdateCommand}"
-                                AutomationProperties.Name="Nieuwe versie installeren" />
+                                AutomationProperties.Name="Install the new version" />
                     </Grid>
                 </Border>
 
                 <!-- Device lists -->
                 <ScrollViewer VerticalScrollBarVisibility="Auto" MaxHeight="480" Focusable="False">
                     <StackPanel>
-                        <TextBlock Style="{StaticResource Style.SectionHeader}" Text="Verbonden"
+                        <TextBlock Style="{StaticResource Style.SectionHeader}" Text="Connected"
                                    Visibility="{Binding HasConnected, Converter={x:Static c:Conv.BoolToVis}}" />
                         <ItemsControl ItemsSource="{Binding Connected}" Focusable="False"
                                       ItemTemplate="{DynamicResource Template.ConnectedItem}"
                                       ItemsPanel="{DynamicResource Panel.Connected}" />
 
-                        <TextBlock Style="{StaticResource Style.SectionHeader}" Text="Gekoppeld"
+                        <TextBlock Style="{StaticResource Style.SectionHeader}" Text="Paired"
                                    Visibility="{Binding HasPaired, Converter={x:Static c:Conv.BoolToVis}}" />
                         <ItemsControl ItemsSource="{Binding Paired}" Focusable="False"
                                       ItemTemplate="{DynamicResource Template.PairedItem}"
@@ -98,7 +98,7 @@
                         <TextBlock Margin="6,28,6,20" TextWrapping="Wrap" TextAlignment="Center" FontSize="13"
                                    Foreground="{DynamicResource Brush.TextSecondary}"
                                    Visibility="{Binding IsEmpty, Converter={x:Static c:Conv.BoolToVis}}"
-                                   Text="Nog geen gekoppelde Bluetooth-apparaten. Kies 'Apparaat toevoegen' om er een te koppelen." />
+                                   Text="No paired Bluetooth devices yet. Choose 'Add a device' to pair one." />
                     </StackPanel>
                 </ScrollViewer>
             </DockPanel>
@@ -111,20 +111,20 @@
                         <ColumnDefinition Width="*" />
                     </Grid.ColumnDefinitions>
                     <Button Style="{StaticResource Style.IconButton}" Content="{DynamicResource Icon.Back}"
-                            Command="{Binding CloseSettingsCommand}" ToolTip="Terug" AutomationProperties.Name="Terug" />
-                    <TextBlock Grid.Column="1" Text="Instellingen" FontSize="16" FontWeight="SemiBold"
+                            Command="{Binding CloseSettingsCommand}" ToolTip="Back" AutomationProperties.Name="Back" />
+                    <TextBlock Grid.Column="1" Text="Settings" FontSize="16" FontWeight="SemiBold"
                                Margin="10,0,0,0" VerticalAlignment="Center" />
                 </Grid>
 
-                <TextBlock Style="{StaticResource Style.SectionHeader}" Text="Uiterlijk" />
+                <TextBlock Style="{StaticResource Style.SectionHeader}" Text="Appearance" />
                 <Border Style="{StaticResource Style.SettingsCard}">
                     <StackPanel Margin="0,10,0,12">
-                        <TextBlock Text="Thema" FontSize="14" Margin="0,0,0,6" />
+                        <TextBlock Text="Theme" FontSize="14" Margin="0,0,0,6" />
                         <ComboBox Style="{StaticResource Style.ComboBox}"
                                   ItemsSource="{Binding ThemeOptions}"
                                   SelectedValuePath="Key"
                                   SelectedValue="{Binding SelectedTheme, Mode=TwoWay}"
-                                  AutomationProperties.Name="Thema">
+                                  AutomationProperties.Name="Theme">
                             <ComboBox.ItemTemplate>
                                 <DataTemplate>
                                     <TextBlock Text="{Binding Value}" />
@@ -132,47 +132,47 @@
                             </ComboBox.ItemTemplate>
                         </ComboBox>
 
-                        <TextBlock Text="Modus" FontSize="14" Margin="0,14,0,6" />
+                        <TextBlock Text="Mode" FontSize="14" Margin="0,14,0,6" />
                         <Border Background="{DynamicResource Brush.ControlBackground}"
                                 BorderBrush="{DynamicResource Brush.ControlBorder}" BorderThickness="1"
                                 CornerRadius="{DynamicResource Radius.Control}" Padding="2">
                             <UniformGrid Columns="3">
-                                <RadioButton Style="{StaticResource Style.Segment}" Content="Licht"
+                                <RadioButton Style="{StaticResource Style.Segment}" Content="Light"
                                              IsChecked="{Binding ThemeMode, Mode=TwoWay, Converter={x:Static c:Conv.EnumToBool}, ConverterParameter=Light}"
-                                             AutomationProperties.Name="Lichte modus" />
-                                <RadioButton Style="{StaticResource Style.Segment}" Content="Donker"
+                                             AutomationProperties.Name="Light mode" />
+                                <RadioButton Style="{StaticResource Style.Segment}" Content="Dark"
                                              IsChecked="{Binding ThemeMode, Mode=TwoWay, Converter={x:Static c:Conv.EnumToBool}, ConverterParameter=Dark}"
-                                             AutomationProperties.Name="Donkere modus" />
-                                <RadioButton Style="{StaticResource Style.Segment}" Content="Automatisch"
+                                             AutomationProperties.Name="Dark mode" />
+                                <RadioButton Style="{StaticResource Style.Segment}" Content="Automatic"
                                              IsChecked="{Binding ThemeMode, Mode=TwoWay, Converter={x:Static c:Conv.EnumToBool}, ConverterParameter=Auto}"
-                                             ToolTip="Volgt de kleurinstelling van Windows"
-                                             AutomationProperties.Name="Automatisch, volgt Windows" />
+                                             ToolTip="Follows the Windows colour setting"
+                                             AutomationProperties.Name="Automatic, follows Windows" />
                             </UniformGrid>
                         </Border>
                     </StackPanel>
                 </Border>
 
-                <TextBlock Style="{StaticResource Style.SectionHeader}" Text="Meldingen" />
+                <TextBlock Style="{StaticResource Style.SectionHeader}" Text="Notifications" />
                 <Border Style="{StaticResource Style.SettingsCard}">
                     <StackPanel>
-                        <CheckBox Style="{StaticResource Style.Switch}" Content="Bij verbinden"
+                        <CheckBox Style="{StaticResource Style.Switch}" Content="On connect"
                                   IsChecked="{Binding NotifyOnConnect, Mode=TwoWay}" />
-                        <CheckBox Style="{StaticResource Style.Switch}" Content="Bij verbreken"
+                        <CheckBox Style="{StaticResource Style.Switch}" Content="On disconnect"
                                   IsChecked="{Binding NotifyOnDisconnect, Mode=TwoWay}" />
-                        <CheckBox Style="{StaticResource Style.Switch}" Content="Bij lage accu"
+                        <CheckBox Style="{StaticResource Style.Switch}" Content="On low battery"
                                   IsChecked="{Binding NotifyOnLowBattery, Mode=TwoWay}" />
                     </StackPanel>
                 </Border>
 
-                <TextBlock Style="{StaticResource Style.SectionHeader}" Text="Accu" />
+                <TextBlock Style="{StaticResource Style.SectionHeader}" Text="Battery" />
                 <Border Style="{StaticResource Style.SettingsCard}">
                     <StackPanel Margin="0,10,0,12">
-                        <TextBlock Text="Waarschuwen onder" FontSize="14" Margin="0,0,0,6" />
+                        <TextBlock Text="Warn below" FontSize="14" Margin="0,0,0,6" />
                         <ComboBox Style="{StaticResource Style.ComboBox}"
                                   ItemsSource="{Binding LowBatteryOptions}"
                                   SelectedValuePath="Key"
                                   SelectedValue="{Binding LowBatteryThreshold, Mode=TwoWay}"
-                                  AutomationProperties.Name="Waarschuwen onder dit accupercentage">
+                                  AutomationProperties.Name="Warn below this battery level">
                             <ComboBox.ItemTemplate>
                                 <DataTemplate>
                                     <TextBlock Text="{Binding Value}" />
@@ -180,12 +180,12 @@
                             </ComboBox.ItemTemplate>
                         </ComboBox>
 
-                        <TextBlock Text="Accuniveau bijwerken" FontSize="14" Margin="0,14,0,6" />
+                        <TextBlock Text="Refresh battery level" FontSize="14" Margin="0,14,0,6" />
                         <ComboBox Style="{StaticResource Style.ComboBox}"
                                   ItemsSource="{Binding BatteryRefreshOptions}"
                                   SelectedValuePath="Key"
                                   SelectedValue="{Binding BatteryRefreshSeconds, Mode=TwoWay}"
-                                  AutomationProperties.Name="Hoe vaak het accuniveau wordt bijgewerkt">
+                                  AutomationProperties.Name="How often the battery level is refreshed">
                             <ComboBox.ItemTemplate>
                                 <DataTemplate>
                                     <TextBlock Text="{Binding Value}" />
@@ -195,18 +195,18 @@
                     </StackPanel>
                 </Border>
 
-                <TextBlock Style="{StaticResource Style.SectionHeader}" Text="Algemeen" />
+                <TextBlock Style="{StaticResource Style.SectionHeader}" Text="General" />
                 <Border Style="{StaticResource Style.SettingsCard}">
                     <StackPanel>
-                        <CheckBox Style="{StaticResource Style.Switch}" Content="Starten met Windows"
+                        <CheckBox Style="{StaticResource Style.Switch}" Content="Start with Windows"
                                   IsChecked="{Binding StartWithWindows, Mode=TwoWay}" />
-                        <CheckBox Style="{StaticResource Style.Switch}" Content="Controleren op updates"
+                        <CheckBox Style="{StaticResource Style.Switch}" Content="Check for updates"
                                   IsChecked="{Binding CheckForUpdates, Mode=TwoWay}"
-                                  ToolTip="Kijkt bij het opstarten of er een nieuwere versie op GitHub staat" />
+                                  ToolTip="Checks GitHub for a newer version at startup" />
                     </StackPanel>
                 </Border>
 
-                <Button Style="{StaticResource Style.LinkButton}" Content="Bluetooth-instellingen van Windows openen"
+                <Button Style="{StaticResource Style.LinkButton}" Content="Open Windows Bluetooth settings"
                         Command="{Binding OpenWindowsSettingsCommand}" Margin="4,0,0,0" HorizontalAlignment="Left" />
                 <TextBlock Text="{Binding Version}" FontSize="11" Margin="4,2,0,0" Foreground="{DynamicResource Brush.TextSecondary}" />
             </StackPanel>

@@ -14,7 +14,7 @@
     <c:InverseBoolToVisibilityConverter x:Key="InverseBoolToVis" />
     <c:PercentToWidthConverter x:Key="PercentToWidth" />
 
-    <!-- Section header ("Verbonden", "Gekoppeld", settings groups) -->
+    <!-- Section header ("Connected", "Paired", settings groups) -->
     <Style x:Key="Style.SectionHeader" TargetType="TextBlock">
         <Setter Property="FontSize" Value="12" />
         <Setter Property="FontWeight" Value="SemiBold" />
@@ -56,7 +56,7 @@
         </Setter>
     </Style>
 
-    <!-- Main call to action ("Apparaat toevoegen") -->
+    <!-- Main call to action ("Add a device") -->
     <Style x:Key="Style.PrimaryButton" TargetType="Button">
         <Setter Property="Height" Value="44" />
         <Setter Property="Cursor" Value="Hand" />
@@ -90,7 +90,7 @@
         </Setter>
     </Style>
 
-    <!-- Text link button ("Bluetooth-instellingen van Windows") -->
+    <!-- Text link button ("Open Windows Bluetooth settings") -->
     <Style x:Key="Style.LinkButton" TargetType="Button">
         <Setter Property="Cursor" Value="Hand" />
         <Setter Property="Foreground" Value="{DynamicResource Brush.Link}" />
@@ -244,7 +244,7 @@
         </Setter>
     </Style>
 
-    <!-- Compact action button on a device card ("Verbreken") -->
+    <!-- Compact action button on a device card ("Disconnect") -->
     <Style x:Key="Style.DeviceButton" TargetType="Button">
         <Setter Property="Height" Value="26" />
         <Setter Property="MinWidth" Value="78" />

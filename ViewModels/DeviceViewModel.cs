@@ -128,8 +128,8 @@ namespace BlueDock.ViewModels
         {
             get
             {
-                if (IsBusy) return IsConnected ? "Verbreken…" : "Verbinden…";
-                return IsConnected ? "Verbreken" : "Verbinden";
+                if (IsBusy) return IsConnected ? "Disconnecting…" : "Connecting…";
+                return IsConnected ? "Disconnect" : "Connect";
             }
         }
 
@@ -144,8 +144,8 @@ namespace BlueDock.ViewModels
                 if (!ok)
                 {
                     ShowMessage(connect
-                        ? "Verbinden niet gelukt — staat het apparaat aan?"
-                        : "Verbreken niet gelukt");
+                        ? "Could not connect — is the device switched on?"
+                        : "Could not disconnect");
                 }
             }
             finally
@@ -239,7 +239,7 @@ namespace BlueDock.ViewModels
             bool ok = await Task.Run(() => CoreAudio.SetDefaultRenderEndpoint(container));
             if (!ok)
             {
-                ShowMessage("Geluid omschakelen niet gelukt");
+                ShowMessage("Could not switch the sound");
                 return;
             }
 
@@ -254,23 +254,23 @@ namespace BlueDock.ViewModels
             get
             {
                 if (_message != null) return _message;
-                if (IsBusy) return IsConnected ? "Verbinding verbreken…" : "Verbinden…";
-                if (!IsConnected) return "Niet verbonden";
-                if (IsBatteryLow) return "Verbonden · bijna leeg";
-                return "Verbonden";
+                if (IsBusy) return IsConnected ? "Disconnecting…" : "Connecting…";
+                if (!IsConnected) return "Not connected";
+                if (IsBatteryLow) return "Connected · battery low";
+                return "Connected";
             }
         }
 
         public string KindText => Kind switch
         {
-            DeviceKind.Headphones => "Koptelefoon",
+            DeviceKind.Headphones => "Headphones",
             DeviceKind.Speaker => "Speaker",
-            DeviceKind.Mouse => "Muis",
-            DeviceKind.Keyboard => "Toetsenbord",
-            DeviceKind.Phone => "Telefoon",
+            DeviceKind.Mouse => "Mouse",
+            DeviceKind.Keyboard => "Keyboard",
+            DeviceKind.Phone => "Phone",
             DeviceKind.Gamepad => "Controller",
             DeviceKind.Computer => "Computer",
-            _ => "Bluetooth-apparaat",
+            _ => "Bluetooth device",
         };
 
         /// <summary>Resource key of the Tabler icon for this device type (see Themes/Icons.xaml).</summary>

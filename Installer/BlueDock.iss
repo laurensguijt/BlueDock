@@ -60,7 +60,6 @@ DisableReadyPage=yes
 LicenseFile=..\LICENSE
 
 [Languages]
-Name: "dutch"; MessagesFile: "compiler:Languages\Dutch.isl"
 Name: "english"; MessagesFile: "compiler:Default.isl"
 
 [Files]
@@ -69,10 +68,10 @@ Source: "{#SourceExe}"; DestDir: "{app}"; DestName: "BlueDock.exe"; Flags: ignor
 [Icons]
 ; AppUserModelID is what lets Windows attribute notifications to BlueDock.
 Name: "{autoprograms}\{#AppName}"; Filename: "{app}\BlueDock.exe"; \
-    AppUserModelID: "{#AppUserModelId}"; Comment: "Bluetooth-apparaten in het systeemvak"
+    AppUserModelID: "{#AppUserModelId}"; Comment: "Bluetooth devices in the system tray"
 
 [Run]
-Filename: "{app}\BlueDock.exe"; Description: "BlueDock nu starten"; \
+Filename: "{app}\BlueDock.exe"; Description: "Start BlueDock now"; \
     Flags: nowait postinstall skipifsilent
 
 [UninstallRun]

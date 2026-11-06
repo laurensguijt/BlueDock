@@ -4,6 +4,10 @@ A small Bluetooth panel for the Windows system tray. Click the tray icon and a c
 opens next to the clock: your devices, whether they are connected, their battery level, and a
 button to connect or disconnect them.
 
+<p align="center">
+  <img src="docs/panel-fluent-dark.png" alt="The BlueDock panel" width="400">
+</p>
+
 ## Why
 
 Managing Bluetooth on Windows means opening Settings, waiting for the page, scrolling to the
@@ -17,9 +21,6 @@ menu rather than a panel, or audio only, or they only watch battery levels.
 It is a personal project, not a product. It does what I need it to do and it is maintained when
 something annoys me. Issues and pull requests are welcome, but there is no roadmap promise
 behind it.
-
-> **The interface is in Dutch.** The code and documentation are in English. If you would use an
-> English interface, say so in an issue; the strings are not scattered, so it is a modest change.
 
 ## What it does
 
@@ -45,9 +46,30 @@ behind it.
 - **Update check.** On start BlueDock asks GitHub whether a newer release exists and, if so,
   offers a bar in the panel that downloads and runs the installer for you. It only ever
   downloads from this repository's releases, never offers a downgrade, and can be switched off
-  under *Algemeen*.
+  under *General*.
 
 Settings live in `%AppData%\BlueDock\settings.json`.
+
+## Themes
+
+Three of them, each in light and dark, following the Windows colour setting unless you pick one.
+
+<table>
+  <tr>
+    <td align="center"><b>Windows 11 Fluent</b></td>
+    <td align="center"><b>Liquid Glass</b></td>
+    <td align="center"><b>Soft Tiles</b></td>
+  </tr>
+  <tr>
+    <td><img src="docs/panel-fluent-light.png" alt="Fluent, light" width="260"></td>
+    <td><img src="docs/panel-glass-dark.png" alt="Glass, dark" width="260"></td>
+    <td><img src="docs/panel-tiles-light.png" alt="Tiles, light" width="260"></td>
+  </tr>
+</table>
+
+<p align="center">
+  <img src="docs/settings-fluent-dark.png" alt="Settings" width="340">
+</p>
 
 ## Install
 
@@ -109,6 +131,17 @@ If you are tempted to detect whether a toast arrived: `Show()` returns happily w
 discards the notification, and the notification store misses toasts that really appeared. Both
 of those sent this project down a blind alley. Decide up front whether toasts are possible, as
 BlueDock does.
+
+## Privacy
+
+BlueDock makes exactly one network request, and only if you let it: once per start it asks the
+GitHub releases API whether a newer version exists. Nothing is sent along — no identifier, no
+device names, no telemetry — and the check can be switched off under *General*. Everything
+else, including which devices you own and their battery levels, stays on the machine. Settings
+live in `%AppData%\BlueDock\settings.json` and go nowhere.
+
+The installer is not signed, so SmartScreen warns on first run. [docs/signing.md](docs/signing.md)
+explains why and what it would take to fix.
 
 ## Build and run
 
@@ -198,9 +231,8 @@ Issues and pull requests are welcome. The conventions, and the reasoning behind 
 parts of the Windows APIs, are in [CLAUDE.md](CLAUDE.md) — worth reading before touching the
 Bluetooth or notification code, because several of those behaviours are not what they look like.
 
-In short: interface text in Dutch, code and comments in English, explicit `using` directives
-(`ImplicitUsings` is off), and never show estimated data such as a guessed battery level —
-leave it out instead.
+In short: everything in English, explicit `using` directives (`ImplicitUsings` is off), and
+never show estimated data such as a guessed battery level — leave it out instead.
 
 ## Credits
 
