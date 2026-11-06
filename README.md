@@ -170,7 +170,19 @@ Themes/
   <Theme>.xaml             theme structure: templates, radii, spacing
   <Theme>.Light/.Dark.xaml the two palettes of that theme, colours only
 Installer/BlueDock.iss     Inno Setup script
+Tests/                     xUnit tests for the logic that does not need hardware
 ```
+
+### Tests
+
+```powershell
+dotnet test Tests\BlueDock.Tests.csproj
+```
+
+They cover the parts that have actually gone wrong: folding a dual mode device's two endpoints
+into one, mapping Windows' device categories onto icons, the update check's version and host
+rules, and whether both palettes of a theme define the same keys. No Bluetooth hardware is
+needed, and the CI runs them on every push.
 
 ### Adding a theme
 

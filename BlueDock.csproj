@@ -14,7 +14,7 @@
     <ApplicationIcon>Assets\bluedock.ico</ApplicationIcon>
     <ApplicationManifest>app.manifest</ApplicationManifest>
     <!-- Release builds get the version from the tag; this is the fallback for local builds -->
-    <Version>0.1.5</Version>
+    <Version>0.1.6</Version>
     <Product>BlueDock</Product>
     <Authors>Laurens Guijt</Authors>
     <!-- Lets the project also compile on non-Windows build machines (CI) -->
@@ -25,5 +25,19 @@
     <Resource Include="Assets\bluedock.ico" />
   </ItemGroup>
 
+  <ItemGroup>
+    <!-- The test project sits in a subfolder, which the SDK would otherwise glob into this one -->
+    <Compile Remove="Tests\**" />
+    <Page Remove="Tests\**" />
+    <Resource Remove="Tests\**" />
+    <None Remove="Tests\**" />
+  </ItemGroup>
+
+
+  <ItemGroup>
+    <!-- The grouping, category and update checks are internal on purpose: they are
+         implementation detail, but they are also exactly what went wrong before. -->
+    <InternalsVisibleTo Include="BlueDock.Tests" />
+  </ItemGroup>
 
 </Project>

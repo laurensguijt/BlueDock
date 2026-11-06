@@ -80,7 +80,7 @@ namespace BlueDock.Services
 
         private static readonly string[] WatcherProps = { IsConnectedKey, ContainerIdKey, AepCategoryKey };
 
-        private sealed class Entry
+        internal sealed class Entry
         {
             public string Id = "";
             public string Name = "";
@@ -100,7 +100,7 @@ namespace BlueDock.Services
         /// device and so do we. Without this the headset appears twice in the list and a single
         /// connect raises two notifications.
         /// </summary>
-        private sealed class Group
+        internal sealed class Group
         {
             public string Key = "";
             public readonly List<Entry> Entries = new();
@@ -295,7 +295,7 @@ namespace BlueDock.Services
         }
 
         /// <summary>Folds the endpoints of one physical device into a single view of it.</summary>
-        private static DeviceSnapshot BuildSnapshot(Group group)
+        internal static DeviceSnapshot BuildSnapshot(Group group)
         {
             // The classic endpoint carries the friendly Bluetooth name. The LE one is often
             // prefixed ("LE-Zone 305") or just whatever the device advertises, which for a phone
@@ -532,7 +532,7 @@ namespace BlueDock.Services
         /// "Audio.Headphone" or "Communication.Headset.Bluetooth"; the first entry is the primary
         /// one, so each category is matched in full before moving on to the next.
         /// </summary>
-        private static DeviceKind KindFromCategories(IEnumerable<string> categories)
+        internal static DeviceKind KindFromCategories(IEnumerable<string> categories)
         {
             foreach (var category in categories)
             {
@@ -549,7 +549,7 @@ namespace BlueDock.Services
             return DeviceKind.Other;
         }
 
-        private static DeviceKind KindFromName(string name)
+        internal static DeviceKind KindFromName(string name)
         {
             var n = name.ToLowerInvariant();
             if (n.Contains("keyboard") || n.Contains("keys")) return DeviceKind.Keyboard;

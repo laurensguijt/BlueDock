@@ -64,6 +64,14 @@ Windows system-tray Bluetooth popup (WPF, .NET 8). See README.md for features an
   Never offers a downgrade. Failures are silent: no network is not an error worth a dialog.
 - Settings: %AppData%\BlueDock\settings.json
 
+## Tests
+- Tests/BlueDock.Tests.csproj (xUnit). Run with `dotnet test Tests/BlueDock.Tests.csproj`; CI
+  runs it on every push. The Tests folder sits inside the project directory, so BlueDock.csproj
+  removes it from its own globs; do not drop that.
+- They cover what has broken before: endpoint folding, category mapping, the updater's version
+  and host rules, palette key parity. Internals are reachable through InternalsVisibleTo rather
+  than being made public.
+
 ## Conventions
 - UI text in Dutch, code and comments in English
 - ImplicitUsings is disabled (WinForms + WPF name clashes): add explicit usings

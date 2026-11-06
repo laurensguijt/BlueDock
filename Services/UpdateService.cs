@@ -135,13 +135,13 @@ namespace BlueDock.Services
             }
         }
 
-        private static bool IsAllowed(string url) =>
+        internal static bool IsAllowed(string url) =>
             Uri.TryCreate(url, UriKind.Absolute, out var uri)
             && uri.Scheme == Uri.UriSchemeHttps
             && AllowedHosts.Contains(uri.Host, StringComparer.OrdinalIgnoreCase);
 
         /// <summary>"v0.1.4" and "0.1.4" both mean the same release.</summary>
-        private static Version? ParseVersion(string? tag)
+        internal static Version? ParseVersion(string? tag)
         {
             if (string.IsNullOrWhiteSpace(tag)) return null;
             tag = tag.TrimStart('v', 'V');
