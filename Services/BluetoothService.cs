@@ -89,10 +89,24 @@ namespace BlueDock.Services
             public DeviceKind Kind;
             public int? Battery;
             public bool IsLowEnergy;
-            public bool LowBatteryNotified;
             public ConnectAbility Ability;
+            /// <summary>Which physical device this endpoint belongs to.</summary>
+            public string GroupKey = "";
+        }
 
-            public DeviceSnapshot Snapshot() => new(Id, Name, IsConnected, Kind, Battery, IsLowEnergy, Ability);
+        /// <summary>
+        /// One physical device. A dual mode headset registers two association endpoints, a
+        /// classic one and an LE one, that share a container id; Windows shows them as a single
+        /// device and so do we. Without this the headset appears twice in the list and a single
+        /// connect raises two notifications.
+        /// </summary>
+        private sealed class Group
+        {
+            public string Key = "";
+            public readonly List<Entry> Entries = new();
+            public bool Announced;
+            public bool WasConnected;
+            public bool LowBatteryNotified;
         }
 
         /// <summary>An LE connection we hold open ourselves; disposing it lets the link drop again.</summary>
@@ -112,6 +126,7 @@ namespace BlueDock.Services
 
         private readonly object _lock = new();
         private readonly Dictionary<string, Entry> _devices = new();
+        private readonly Dictionary<string, Group> _groups = new();
         private readonly Dictionary<string, LeLink> _leLinks = new();
         private DeviceWatcher? _classic;
         private DeviceWatcher? _le;
@@ -146,6 +161,7 @@ namespace BlueDock.Services
             {
                 foreach (var link in _leLinks.Values) link.Dispose();
                 _leLinks.Clear();
+                _groups.Clear();
             }
 
             foreach (var w in new[] { _classic, _le })
@@ -181,13 +197,22 @@ namespace BlueDock.Services
             if (entry.Kind == DeviceKind.Other)
                 entry.Kind = KindFromName(entry.Name);
 
+            Group group;
             lock (_lock)
             {
                 if (_devices.ContainsKey(entry.Id)) return;
                 _devices[entry.Id] = entry;
+
+                entry.GroupKey = entry.ContainerId is Guid container ? container.ToString() : entry.Id;
+                if (!_groups.TryGetValue(entry.GroupKey, out group!))
+                {
+                    group = new Group { Key = entry.GroupKey };
+                    _groups[entry.GroupKey] = group;
+                }
+                group.Entries.Add(entry);
             }
 
-            DeviceAdded?.Invoke(this, entry.Snapshot());
+            Publish(group);
             _ = ResolveKindAsync(entry);
             _ = ResolveAbilityAsync(entry);
             if (entry.IsConnected)
@@ -197,34 +222,31 @@ namespace BlueDock.Services
         private void OnUpdated(DeviceInformationUpdate update)
         {
             Entry? entry;
-            bool connectionChanged = false;
+            Group? group;
+            bool endpointChanged = false;
             lock (_lock)
             {
                 if (!_devices.TryGetValue(update.Id, out entry)) return;
+                _groups.TryGetValue(entry.GroupKey, out group);
 
                 if (update.Properties.TryGetValue(IsConnectedKey, out var c) && c is bool connected
                     && connected != entry.IsConnected)
                 {
                     entry.IsConnected = connected;
-                    connectionChanged = true;
-                    if (!connected)
-                    {
-                        entry.Battery = null;
-                        entry.LowBatteryNotified = false;
-                    }
+                    endpointChanged = true;
+                    if (!connected) entry.Battery = null;
                 }
 
                 if (update.Properties.TryGetValue(NameKey, out var n) && n is string name && !string.IsNullOrWhiteSpace(name))
                     entry.Name = name;
             }
 
-            DeviceUpdated?.Invoke(this, entry.Snapshot());
+            // Publish decides whether the device as a whole changed state: one endpoint of a
+            // dual mode device dropping is not the device disconnecting.
+            if (group != null) Publish(group);
 
-            if (connectionChanged)
+            if (endpointChanged)
             {
-                if (IsLive)
-                    ConnectionChanged?.Invoke(this, new ConnectionChangedEventArgs(entry.Name, entry.IsConnected, entry.Kind));
-
                 if (entry.IsConnected)
                     _ = RefreshBatteryAfterConnectAsync(entry);
                 else
@@ -232,16 +254,116 @@ namespace BlueDock.Services
             }
         }
 
+        /// <summary>
+        /// Raises the right event for a device, built from all of its endpoints. Reports a
+        /// connection change only when the device as a whole went up or down.
+        /// </summary>
+        private void Publish(Group group)
+        {
+            DeviceSnapshot snapshot;
+            bool announce, connectionChanged;
+
+            lock (_lock)
+            {
+                if (group.Entries.Count == 0) return;
+                snapshot = BuildSnapshot(group);
+
+                announce = !group.Announced;
+                group.Announced = true;
+
+                connectionChanged = snapshot.IsConnected != group.WasConnected;
+                group.WasConnected = snapshot.IsConnected;
+                if (connectionChanged && !snapshot.IsConnected)
+                    group.LowBatteryNotified = false;
+            }
+
+            if (announce)
+                DeviceAdded?.Invoke(this, snapshot);
+            else
+                DeviceUpdated?.Invoke(this, snapshot);
+
+            if (connectionChanged && IsLive)
+                ConnectionChanged?.Invoke(this,
+                    new ConnectionChangedEventArgs(snapshot.Name, snapshot.IsConnected, snapshot.Kind));
+        }
+
+        /// <summary>Folds the endpoints of one physical device into a single view of it.</summary>
+        private static DeviceSnapshot BuildSnapshot(Group group)
+        {
+            // The classic endpoint carries the friendly Bluetooth name. The LE one is often
+            // prefixed ("LE-Zone 305") or just whatever the device advertises, which for a phone
+            // can be a single digit, so it is only used when there is no classic endpoint.
+            var named = group.Entries.FirstOrDefault(e => !e.IsLowEnergy) ?? group.Entries[0];
+
+            var kind = group.Entries
+                .OrderBy(e => e.IsLowEnergy ? 1 : 0)
+                .Select(e => e.Kind)
+                .FirstOrDefault(k => k != DeviceKind.Other);
+
+            // A battery reading from a connected endpoint beats a stale one.
+            int? battery = group.Entries.FirstOrDefault(e => e.IsConnected && e.Battery.HasValue)?.Battery
+                        ?? group.Entries.FirstOrDefault(e => e.Battery.HasValue)?.Battery;
+
+            // Not Max(): the enum order does not match how useful the abilities are.
+            var ability = group.Entries.Any(e => e.Ability == ConnectAbility.AudioToggle)
+                ? ConnectAbility.AudioToggle
+                : group.Entries.Any(e => e.Ability == ConnectAbility.LeConnectOnly)
+                    ? ConnectAbility.LeConnectOnly
+                    : ConnectAbility.None;
+
+            return new DeviceSnapshot(
+                group.Key,
+                named.Name,
+                group.Entries.Any(e => e.IsConnected),
+                kind,
+                battery,
+                group.Entries.All(e => e.IsLowEnergy),
+                ability);
+        }
+
+        private DeviceSnapshot BuildSnapshotLocked(Group group)
+        {
+            lock (_lock) return BuildSnapshot(group);
+        }
+
+        private Group? GroupOf(Entry entry)
+        {
+            lock (_lock)
+                return _groups.TryGetValue(entry.GroupKey, out var group) ? group : null;
+        }
+
+        private void PublishGroupOf(Entry entry)
+        {
+            var group = GroupOf(entry);
+            if (group != null) Publish(group);
+        }
+
         private void OnRemoved(string id)
         {
             LeLink? link;
+            Group? group = null;
+            bool deviceGone = false;
+
             lock (_lock)
             {
-                if (!_devices.Remove(id)) return;
-                if (_leLinks.Remove(id, out link)) { /* disposed below, outside the lock */ }
+                if (!_devices.Remove(id, out var entry)) return;
+                _leLinks.Remove(id, out link);
+
+                if (_groups.TryGetValue(entry.GroupKey, out group))
+                {
+                    group.Entries.Remove(entry);
+                    if (group.Entries.Count == 0)
+                    {
+                        _groups.Remove(entry.GroupKey);
+                        deviceGone = true;
+                    }
+                }
             }
             link?.Dispose();
-            DeviceRemoved?.Invoke(this, id);
+
+            // Losing one endpoint of a dual mode device is an update, not a removal.
+            if (deviceGone && group != null) DeviceRemoved?.Invoke(this, group.Key);
+            else if (group != null) Publish(group);
         }
 
         // ---------- Connect / disconnect ----------
@@ -253,36 +375,39 @@ namespace BlueDock.Services
         /// </summary>
         public async Task<bool> SetConnectedAsync(string id, bool connect)
         {
-            Entry? entry;
+            Group? group;
+            Entry? audio, le;
             lock (_lock)
             {
-                if (!_devices.TryGetValue(id, out entry)) return false;
-                if (entry.IsConnected == connect) return true;
+                if (!_groups.TryGetValue(id, out group)) return false;
+                if (group.Entries.Any(e => e.IsConnected) == connect) return true;
+
+                // Either endpoint may be the one that can be steered; audio wins because it is
+                // the only one that can also disconnect.
+                audio = group.Entries.FirstOrDefault(e => e.Ability == ConnectAbility.AudioToggle);
+                le = group.Entries.FirstOrDefault(e => e.IsLowEnergy && e.Ability == ConnectAbility.LeConnectOnly);
             }
 
-            switch (entry.Ability)
+            if (audio != null && audio.ContainerId is Guid container)
             {
-                case ConnectAbility.AudioToggle:
-                    if (entry.ContainerId is not Guid container) return false;
-                    // COM enumeration plus a driver round trip: keep it off the UI thread.
-                    if (!await Task.Run(() => CoreAudio.SendOneShot(container, connect))) return false;
-                    break;
-
-                case ConnectAbility.LeConnectOnly:
-                    if (!connect) return false;
-                    if (!await OpenLeLinkAsync(entry)) return false;
-                    break;
-
-                default:
-                    return false;
+                // COM enumeration plus a driver round trip: keep it off the UI thread.
+                if (!await Task.Run(() => CoreAudio.SendOneShot(container, connect))) return false;
+            }
+            else if (connect && le != null)
+            {
+                if (!await OpenLeLinkAsync(le)) return false;
+            }
+            else
+            {
+                return false;
             }
 
             // The KS property and the GATT session both only *request* a state; the DeviceWatcher
             // tells us what actually happened.
-            bool reached = await WaitForStateAsync(entry, connect, TimeSpan.FromSeconds(connect ? 12 : 8));
+            bool reached = await WaitForStateAsync(group, connect, TimeSpan.FromSeconds(connect ? 12 : 8));
 
-            if (!reached && connect)
-                DropLeLink(entry.Id);   // do not keep a session open for a device that never came up
+            if (!reached && connect && le != null)
+                DropLeLink(le.Id);   // do not keep a session open for a device that never came up
 
             return reached;
         }
@@ -327,14 +452,14 @@ namespace BlueDock.Services
             link?.Dispose();
         }
 
-        private async Task<bool> WaitForStateAsync(Entry entry, bool desired, TimeSpan timeout)
+        private async Task<bool> WaitForStateAsync(Group group, bool desired, TimeSpan timeout)
         {
             var deadline = DateTime.UtcNow + timeout;
             while (true)
             {
                 lock (_lock)
                 {
-                    if (entry.IsConnected == desired) return true;
+                    if (group.Entries.Any(e => e.IsConnected) == desired) return true;
                 }
                 if (DateTime.UtcNow >= deadline) return false;
                 await Task.Delay(250);
@@ -363,7 +488,7 @@ namespace BlueDock.Services
 
             if (ability == entry.Ability) return;
             entry.Ability = ability;
-            DeviceUpdated?.Invoke(this, entry.Snapshot());
+            PublishGroupOf(entry);
         }
 
         // ---------- Device type (icon) ----------
@@ -385,7 +510,7 @@ namespace BlueDock.Services
                 if (kind != DeviceKind.Other && kind != entry.Kind)
                 {
                     entry.Kind = kind;
-                    DeviceUpdated?.Invoke(this, entry.Snapshot());
+                    PublishGroupOf(entry);
                 }
             }
             catch
@@ -453,20 +578,32 @@ namespace BlueDock.Services
 
             if (level == entry.Battery) return;
             entry.Battery = level;
-            DeviceUpdated?.Invoke(this, entry.Snapshot());
+
+            var group = GroupOf(entry);
+            if (group == null) return;
+            Publish(group);
 
             var threshold = App.Settings.Current.LowBatteryThreshold;
-            if (level is int pct)
+            if (level is not int pct) return;
+
+            bool warn = false;
+            lock (_lock)
             {
-                if (pct <= threshold && !entry.LowBatteryNotified)
+                if (pct <= threshold && !group.LowBatteryNotified)
                 {
-                    entry.LowBatteryNotified = true;
-                    LowBattery?.Invoke(this, new LowBatteryEventArgs(entry.Name, pct, entry.Kind));
+                    group.LowBatteryNotified = true;
+                    warn = true;
                 }
                 else if (pct > threshold + 5)
                 {
-                    entry.LowBatteryNotified = false; // re-arm after charging
+                    group.LowBatteryNotified = false; // re-arm after charging
                 }
+            }
+
+            if (warn)
+            {
+                var snapshot = BuildSnapshotLocked(group);
+                LowBattery?.Invoke(this, new LowBatteryEventArgs(snapshot.Name, pct, snapshot.Kind));
             }
         }
 

@@ -9,6 +9,12 @@ Windows system-tray Bluetooth popup (WPF, .NET 8). See README.md for features an
 
 ## Architecture
 - Services/BluetoothService.cs: DeviceWatchers (Classic + LE, AssociationEndpoint), battery via DEVPKEY_Bluetooth_Battery and GATT 0x180F. Events fire on background threads; MainViewModel marshals to the UI thread.
+- One physical device, not one endpoint: a dual mode device registers both a classic and an LE
+  association endpoint sharing System.Devices.Aep.ContainerId. Entries are grouped by that id
+  and every event carries the group (its key is the snapshot Id, so SetConnectedAsync takes a
+  group key). Without grouping the device is listed twice and one connect raises two
+  notifications. The displayed name comes from the classic endpoint; LE names are often
+  prefixed or just whatever is advertised.
 - Device type comes from System.Devices.Aep.Category (the classification Windows itself uses:
   "Audio.Headphone", "Communication.Headset.Bluetooth", "Input.Mouse", ...), requested through
   the watcher. Do NOT use System.Devices.Category on the container: it is the localized display
