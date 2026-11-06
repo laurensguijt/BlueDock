@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Linq;
 using System.Windows;
+using System.Threading.Tasks;
 using System.Windows.Input;
 using BlueDock.Services;
 
@@ -15,6 +16,9 @@ namespace BlueDock.ViewModels
         private readonly SettingsService _settings;
         private readonly Dictionary<string, DeviceViewModel> _byId = new();
         private bool _isSettingsOpen;
+        private UpdateInfo? _update;
+        private bool _isUpdating;
+        private string? _updateStatus;
 
         public MainViewModel(BluetoothService bluetooth, RadioService radio, SettingsService settings)
         {
@@ -37,6 +41,7 @@ namespace BlueDock.ViewModels
             OpenWindowsSettingsCommand = new RelayCommand(() => TrayService.OpenUri("ms-settings:bluetooth"));
             OpenSettingsCommand = new RelayCommand(() => IsSettingsOpen = true);
             CloseSettingsCommand = new RelayCommand(() => IsSettingsOpen = false);
+            InstallUpdateCommand = new AsyncRelayCommand(InstallUpdateAsync, () => _update != null && !_isUpdating);
         }
 
         // ---------- Device lists ----------
@@ -78,6 +83,82 @@ namespace BlueDock.ViewModels
         {
             get => _isSettingsOpen;
             set => Set(ref _isSettingsOpen, value);
+        }
+
+        // ---------- Updates ----------
+
+        public AsyncRelayCommand InstallUpdateCommand { get; }
+
+        public bool IsUpdateAvailable => _update != null;
+
+        public string UpdateTitle =>
+            _update == null ? "" : $"Versie {_update.Version.ToString(3)} is beschikbaar";
+
+        public string UpdateStatus => _updateStatus ?? (_update == null ? "" : Megabytes(_update.Size));
+
+        public string UpdateActionText => _isUpdating ? "Bezig…" : "Bijwerken";
+
+        /// <summary>
+        /// Asks GitHub whether there is something newer. Runs in the background and stays quiet
+        /// about failures: an app that cannot reach the internet is not a broken app.
+        /// </summary>
+        public async Task CheckForUpdateAsync()
+        {
+            if (!_settings.Current.CheckForUpdates) return;
+
+            var found = await UpdateService.CheckAsync();
+            if (found == null) return;
+
+            _update = found;
+            OnUi(() =>
+            {
+                OnPropertyChanged(nameof(IsUpdateAvailable));
+                OnPropertyChanged(nameof(UpdateTitle));
+                OnPropertyChanged(nameof(UpdateStatus));
+                InstallUpdateCommand.RaiseCanExecuteChanged();
+            });
+        }
+
+        private async Task InstallUpdateAsync()
+        {
+            var update = _update;
+            if (update == null) return;
+
+            _isUpdating = true;
+            SetUpdateStatus("Downloaden…");
+
+            var progress = new Progress<int>(p => SetUpdateStatus($"Downloaden… {p}%"));
+            bool started = await UpdateService.DownloadAndRunAsync(update, progress);
+
+            if (started)
+            {
+                // The installer closes this copy itself; leave the panel saying what happens.
+                SetUpdateStatus("Installatieprogramma gestart");
+                return;
+            }
+
+            _isUpdating = false;
+            SetUpdateStatus("Downloaden niet gelukt — open de releasepagina");
+            InstallUpdateCommand.RaiseCanExecuteChanged();
+        }
+
+        private void SetUpdateStatus(string text)
+        {
+            _updateStatus = text;
+            OnUi(() =>
+            {
+                OnPropertyChanged(nameof(UpdateStatus));
+                OnPropertyChanged(nameof(UpdateActionText));
+            });
+        }
+
+        private static string Megabytes(long bytes) =>
+            bytes <= 0 ? "" : $"{bytes / 1048576.0:0.#} MB downloaden";
+
+        public bool CheckForUpdates
+        {
+            get => _settings.Current.CheckForUpdates;
+            set { _settings.Current.CheckForUpdates = value; _settings.Save(); OnPropertyChanged(); }
         }
 
         public ICommand AddDeviceCommand { get; }

@@ -54,6 +54,7 @@ namespace BlueDock
 
             ToastService.LogRoute();
             _bluetooth.Start();
+            _ = vm.CheckForUpdateAsync();
             _ = radio.InitializeAsync();
         }
 

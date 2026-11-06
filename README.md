@@ -37,6 +37,10 @@ behind it.
   icon. See [Notifications](#notifications).
 - **Three themes**, each in light and dark, following the Windows colour setting by default.
 - **Pairing** opens the Windows "Add a device" dialog, which is the one part Windows does well.
+- **Update check.** On start BlueDock asks GitHub whether a newer release exists and, if so,
+  offers a bar in the panel that downloads and runs the installer for you. It only ever
+  downloads from this repository's releases, never offers a downgrade, and can be switched off
+  under *Algemeen*.
 
 Settings live in `%AppData%\BlueDock\settings.json`.
 

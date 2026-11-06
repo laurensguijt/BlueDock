@@ -57,6 +57,29 @@
                 <Button DockPanel.Dock="Bottom" Style="{StaticResource Style.PrimaryButton}" Margin="0,12,0,0"
                         Content="Apparaat toevoegen" Command="{Binding AddDeviceCommand}" />
 
+                <!-- Only here when a newer release exists; docked above the footer button -->
+                <Border DockPanel.Dock="Bottom" Margin="0,12,0,0" Padding="12,8"
+                        Background="{DynamicResource Brush.SettingsCard}"
+                        BorderBrush="{DynamicResource Brush.SettingsCardBorder}" BorderThickness="1"
+                        CornerRadius="{DynamicResource Radius.Card}"
+                        Visibility="{Binding IsUpdateAvailable, Converter={x:Static c:Conv.BoolToVis}}">
+                    <Grid>
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="*" />
+                            <ColumnDefinition Width="Auto" />
+                        </Grid.ColumnDefinitions>
+                        <StackPanel VerticalAlignment="Center">
+                            <TextBlock Text="{Binding UpdateTitle}" FontSize="13" TextTrimming="CharacterEllipsis" />
+                            <TextBlock Text="{Binding UpdateStatus}" FontSize="11" TextTrimming="CharacterEllipsis"
+                                       Foreground="{DynamicResource Brush.TextSecondary}" />
+                        </StackPanel>
+                        <Button Grid.Column="1" Style="{DynamicResource Style.DeviceButton}" Margin="10,0,0,0"
+                                VerticalAlignment="Center" Content="{Binding UpdateActionText}"
+                                Command="{Binding InstallUpdateCommand}"
+                                AutomationProperties.Name="Nieuwe versie installeren" />
+                    </Grid>
+                </Border>
+
                 <!-- Device lists -->
                 <ScrollViewer VerticalScrollBarVisibility="Auto" MaxHeight="480" Focusable="False">
                     <StackPanel>
@@ -174,8 +197,13 @@
 
                 <TextBlock Style="{StaticResource Style.SectionHeader}" Text="Algemeen" />
                 <Border Style="{StaticResource Style.SettingsCard}">
-                    <CheckBox Style="{StaticResource Style.Switch}" Content="Starten met Windows"
-                              IsChecked="{Binding StartWithWindows, Mode=TwoWay}" />
+                    <StackPanel>
+                        <CheckBox Style="{StaticResource Style.Switch}" Content="Starten met Windows"
+                                  IsChecked="{Binding StartWithWindows, Mode=TwoWay}" />
+                        <CheckBox Style="{StaticResource Style.Switch}" Content="Controleren op updates"
+                                  IsChecked="{Binding CheckForUpdates, Mode=TwoWay}"
+                                  ToolTip="Kijkt bij het opstarten of er een nieuwere versie op GitHub staat" />
+                    </StackPanel>
                 </Border>
 
                 <Button Style="{StaticResource Style.LinkButton}" Content="Bluetooth-instellingen van Windows openen"

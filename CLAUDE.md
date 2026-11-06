@@ -50,6 +50,11 @@ Windows system-tray Bluetooth popup (WPF, .NET 8). See README.md for features an
   this work; ask the person what they saw. ToastIcons renders the Tabler geometry for a
   DeviceKind to a PNG (a toast can only show an image from disk), cached in
   %AppData%\BlueDock\toast-icons. Plain WinRT, no NuGet dependency.
+- Updates: UpdateService asks the public GitHub releases API once per start (setting
+  CheckForUpdates) and offers the -setup.exe asset of a newer tag. Downloads are restricted to
+  github.com and its CDN hosts, checked again after redirects, and the finished file is size
+  checked. Installing over a running copy is fine; Inno closes it through the Restart Manager.
+  Never offers a downgrade. Failures are silent: no network is not an error worth a dialog.
 - Settings: %AppData%\BlueDock\settings.json
 
 ## Conventions

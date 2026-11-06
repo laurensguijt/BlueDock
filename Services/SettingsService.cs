@@ -14,6 +14,8 @@ namespace BlueDock.Services
         public bool NotifyOnLowBattery { get; set; } = true;
         public int LowBatteryThreshold { get; set; } = 20;
         public int BatteryRefreshSeconds { get; set; } = 120;
+        /// <summary>Ask GitHub once per start whether a newer release exists.</summary>
+        public bool CheckForUpdates { get; set; } = true;
     }
 
     /// <summary>Loads and saves %AppData%\BlueDock\settings.json.</summary>
