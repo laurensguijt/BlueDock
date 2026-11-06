@@ -134,6 +134,53 @@ namespace BlueDock.ViewModels
             set { _settings.Current.NotifyOnLowBattery = value; _settings.Save(); OnPropertyChanged(); }
         }
 
+        /// <summary>Percentages worth warning at; a free number field would only invite typos.</summary>
+        public IReadOnlyList<KeyValuePair<int, string>> LowBatteryOptions { get; } = new[]
+        {
+            new KeyValuePair<int, string>(10, "10%"),
+            new KeyValuePair<int, string>(15, "15%"),
+            new KeyValuePair<int, string>(20, "20%"),
+            new KeyValuePair<int, string>(25, "25%"),
+            new KeyValuePair<int, string>(30, "30%"),
+        };
+
+        public int LowBatteryThreshold
+        {
+            get => _settings.Current.LowBatteryThreshold;
+            set
+            {
+                if (value == _settings.Current.LowBatteryThreshold) return;
+                _settings.Current.LowBatteryThreshold = value;
+                _settings.Save();
+                // Cards show "bijna leeg" against this number, so they all have to look again.
+                foreach (var device in Connected.Concat(Paired))
+                    device.RefreshBatteryThreshold();
+                OnPropertyChanged();
+            }
+        }
+
+        /// <summary>Windows publishes battery levels slowly, so anything under a minute is waste.</summary>
+        public IReadOnlyList<KeyValuePair<int, string>> BatteryRefreshOptions { get; } = new[]
+        {
+            new KeyValuePair<int, string>(60, "elke minuut"),
+            new KeyValuePair<int, string>(120, "elke 2 minuten"),
+            new KeyValuePair<int, string>(300, "elke 5 minuten"),
+            new KeyValuePair<int, string>(600, "elke 10 minuten"),
+        };
+
+        public int BatteryRefreshSeconds
+        {
+            get => _settings.Current.BatteryRefreshSeconds;
+            set
+            {
+                if (value == _settings.Current.BatteryRefreshSeconds) return;
+                _settings.Current.BatteryRefreshSeconds = value;
+                _settings.Save();
+                _bluetooth.SetBatteryInterval(value);
+                OnPropertyChanged();
+            }
+        }
+
         public bool StartWithWindows
         {
             get

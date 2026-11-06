@@ -220,6 +220,13 @@ namespace BlueDock.ViewModels
         /// <summary>The icon geometry itself; the icons live in a theme independent dictionary.</summary>
         public Geometry? Icon => Application.Current?.TryFindResource(IconKey) as Geometry;
 
+        /// <summary>Called when the low battery threshold changed; what counts as low moved.</summary>
+        public void RefreshBatteryThreshold()
+        {
+            OnPropertyChanged(nameof(IsBatteryLow));
+            OnPropertyChanged(nameof(StatusText));
+        }
+
         public void Update(DeviceSnapshot s)
         {
             Name = s.Name;

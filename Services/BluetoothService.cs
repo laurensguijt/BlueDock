@@ -153,6 +153,13 @@ namespace BlueDock.Services
             _batteryTimer = new Timer(_ => RefreshAllBatteries(), null, interval, interval);
         }
 
+        /// <summary>Applies a new battery polling interval without restarting the watchers.</summary>
+        public void SetBatteryInterval(int seconds)
+        {
+            var interval = TimeSpan.FromSeconds(Math.Max(30, seconds));
+            _batteryTimer?.Change(interval, interval);
+        }
+
         public void Stop()
         {
             _batteryTimer?.Dispose();
