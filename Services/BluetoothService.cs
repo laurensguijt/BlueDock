@@ -29,7 +29,7 @@ namespace BlueDock.Services
     }
 
     public sealed record DeviceSnapshot(string Id, string Name, bool IsConnected, DeviceKind Kind, int? Battery,
-                                        bool IsLowEnergy, ConnectAbility Ability);
+                                        bool IsLowEnergy, ConnectAbility Ability, Guid? ContainerId);
 
     public sealed class ConnectionChangedEventArgs : EventArgs
     {
@@ -325,7 +325,8 @@ namespace BlueDock.Services
                 kind,
                 battery,
                 group.Entries.All(e => e.IsLowEnergy),
-                ability);
+                ability,
+                group.Entries.Select(e => e.ContainerId).FirstOrDefault(c => c.HasValue));
         }
 
         private DeviceSnapshot BuildSnapshotLocked(Group group)

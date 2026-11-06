@@ -33,6 +33,11 @@ behind it.
 - **Battery level** where Windows or the device reports one. Never estimated: if there is no
   reading, nothing is shown.
 - **Bluetooth on or off** with the switch in the header.
+- **Send the sound here.** A connected audio device gets a speaker button that makes it the
+  Windows playback device, for media and for calls, and the button lights up on whichever
+  device sound is currently going to. Windows has no supported API for this, so it goes through
+  the same undocumented interface every audio switcher uses, and the result is verified by
+  reading the default back rather than trusting the call.
 - **Notifications** when a device connects, disconnects, or runs low, carrying the device's own
   icon. See [Notifications](#notifications).
 - **Three themes**, each in light and dark, following the Windows colour setting by default.

@@ -41,15 +41,29 @@
                     <TextBlock Text="{Binding Name}" FontSize="14" FontWeight="SemiBold" Foreground="{DynamicResource Brush.OnAccent}" TextTrimming="CharacterEllipsis" />
                     <TextBlock Text="{Binding StatusText}" FontSize="12" Foreground="#E6FFFFFF" />
                 </StackPanel>
-                <Button Grid.Row="2" Style="{DynamicResource Style.DeviceButton}" Margin="0,8,0,0"
-                        HorizontalAlignment="Left" Content="{Binding ActionText}"
-                        Command="{Binding ToggleConnectionCommand}"
-                        Visibility="{Binding CanToggle, Converter={x:Static c:Conv.BoolToVis}}"
-                        ToolTip="Verbinding met dit apparaat verbreken"
-                        AutomationProperties.Name="Verbinding verbreken" />
+                <StackPanel Grid.Row="2" Orientation="Horizontal" Margin="0,8,0,0">
+                    <Button Style="{DynamicResource Style.DeviceButton}"
+                            Content="{Binding ActionText}"
+                            Command="{Binding ToggleConnectionCommand}"
+                            Visibility="{Binding CanToggle, Converter={x:Static c:Conv.BoolToVis}}"
+                            ToolTip="Verbinding met dit apparaat verbreken"
+                            AutomationProperties.Name="Verbinding verbreken" />
+                    <Button x:Name="OutputBtn" Style="{DynamicResource Style.CardIconButton}" Margin="6,0,0,0"
+                            Content="{DynamicResource Icon.Volume}"
+                            Command="{Binding UseAsOutputCommand}"
+                            Visibility="{Binding CanUseAsOutput, Converter={x:Static c:Conv.BoolToVis}}"
+                            ToolTip="Geluid naar dit apparaat sturen"
+                            AutomationProperties.Name="Geluid naar dit apparaat sturen" />
+                </StackPanel>
             </Grid>
         </Border>
         <DataTemplate.Triggers>
+            <DataTrigger Binding="{Binding IsAudioOutput}" Value="True">
+                <Setter TargetName="OutputBtn" Property="Background" Value="{DynamicResource Brush.OnAccent}" />
+                <Setter TargetName="OutputBtn" Property="BorderBrush" Value="{DynamicResource Brush.OnAccent}" />
+                <Setter TargetName="OutputBtn" Property="Foreground" Value="{DynamicResource Brush.Accent}" />
+                <Setter TargetName="OutputBtn" Property="ToolTip" Value="Het geluid gaat nu hierheen" />
+            </DataTrigger>
             <DataTrigger Binding="{Binding IsBatteryLow}" Value="True">
                 <Setter TargetName="Ring" Property="Stroke" Value="{DynamicResource Brush.Warning}" />
             </DataTrigger>

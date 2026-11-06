@@ -82,6 +82,32 @@ namespace BlueDock.Interop
             [PreserveSig] int GetDeviceIdConnectedTo([MarshalAs(UnmanagedType.LPWStr)] out string id);
         }
 
+        /// <summary>
+        /// Undocumented, but the only way to change the default playback device: Windows
+        /// exposes no supported API for it, and every audio switcher on Windows uses this.
+        /// </summary>
+        [ComImport, Guid("870AF99C-171D-4F9E-AF0D-E63DF40C2BC9")]
+        private class PolicyConfigClient { }
+
+        [ComImport, Guid("F8679F50-850A-41CF-9C72-430F290290C8"), InterfaceType(ComInterfaceType.InterfaceIsIUnknown)]
+        private interface IPolicyConfig
+        {
+            // Only SetDefaultEndpoint is called, but every slot before it has to be declared
+            // so that the vtable offset lines up.
+            [PreserveSig] int GetMixFormat(IntPtr a, IntPtr b);
+            [PreserveSig] int GetDeviceFormat(IntPtr a, int b, IntPtr c);
+            [PreserveSig] int ResetDeviceFormat(IntPtr a);
+            [PreserveSig] int SetDeviceFormat(IntPtr a, IntPtr b, IntPtr c);
+            [PreserveSig] int GetProcessingPeriod(IntPtr a, int b, IntPtr c, IntPtr d);
+            [PreserveSig] int SetProcessingPeriod(IntPtr a, IntPtr b);
+            [PreserveSig] int GetShareMode(IntPtr a, IntPtr b);
+            [PreserveSig] int SetShareMode(IntPtr a, IntPtr b);
+            [PreserveSig] int GetPropertyValue(IntPtr a, IntPtr b, IntPtr c);
+            [PreserveSig] int SetPropertyValue(IntPtr a, IntPtr b, IntPtr c);
+            [PreserveSig] int SetDefaultEndpoint([MarshalAs(UnmanagedType.LPWStr)] string deviceId, int role);
+            [PreserveSig] int SetEndpointVisibility(IntPtr a, int b);
+        }
+
         [ComImport, Guid("28F54685-06FD-11D2-B27A-00A0C9223196"), InterfaceType(ComInterfaceType.InterfaceIsIUnknown)]
         private interface IKsControl
         {
@@ -125,6 +151,9 @@ namespace BlueDock.Interop
         private const int DataFlowRender = 0;
         private const int DataFlowCapture = 1;
         private const int DeviceStateAll = 0x0F;
+        private const int DeviceStateActive = 0x01;
+        /// <summary>eConsole, eMultimedia, eCommunications: all three, or the switch is half done.</summary>
+        private static readonly int[] AllRoles = { 0, 1, 2 };
         private const int StgmRead = 0;
         private const int ClsCtxAll = 0x17;
         private const ushort VtClsid = 72;
@@ -140,6 +169,93 @@ namespace BlueDock.Interop
 
         /// <summary>DEVPKEY_Device_ContainerId: ties an audio endpoint to its Bluetooth device.</summary>
         private static readonly PropertyKey PkeyContainerId = new("8C7ED206-3F8A-4827-B3AB-AE9E1FAEFC6C", 2);
+
+        // ---------- Default playback device ----------
+
+        /// <summary>True when this device currently has a usable playback endpoint.</summary>
+        public static bool HasActiveRenderEndpoint(Guid container)
+        {
+            try
+            {
+                var enumerator = (IMMDeviceEnumerator)new MMDeviceEnumeratorComObject();
+                try
+                {
+                    return FindActiveRender(enumerator, container) != null;
+                }
+                finally { Release(enumerator); }
+            }
+            catch
+            {
+                return false;
+            }
+        }
+
+        /// <summary>True when Windows is currently playing sound through this device.</summary>
+        public static bool IsDefaultRenderEndpoint(Guid container)
+        {
+            try
+            {
+                var enumerator = (IMMDeviceEnumerator)new MMDeviceEnumeratorComObject();
+                try
+                {
+                    if (enumerator.GetDefaultAudioEndpoint(DataFlowRender, 0, out var current) != 0) return false;
+                    try { return BelongsTo(current, container); }
+                    finally { Release(current); }
+                }
+                finally { Release(enumerator); }
+            }
+            catch
+            {
+                return false;
+            }
+        }
+
+        /// <summary>
+        /// Routes Windows' sound to this device, for all three roles. Verified by reading the
+        /// default back, because the call reports success either way.
+        /// </summary>
+        public static bool SetDefaultRenderEndpoint(Guid container)
+        {
+            try
+            {
+                var enumerator = (IMMDeviceEnumerator)new MMDeviceEnumeratorComObject();
+                try
+                {
+                    string? id = FindActiveRender(enumerator, container);
+                    if (id == null) return false;
+
+                    var policy = (IPolicyConfig)new PolicyConfigClient();
+                    try
+                    {
+                        foreach (int role in AllRoles)
+                            if (policy.SetDefaultEndpoint(id, role) < 0) return false;
+                    }
+                    finally { Release(policy); }
+                }
+                finally { Release(enumerator); }
+            }
+            catch
+            {
+                return false;
+            }
+
+            return IsDefaultRenderEndpoint(container);
+        }
+
+        /// <summary>Id of this device's active playback endpoint, or null when it has none.</summary>
+        private static string? FindActiveRender(IMMDeviceEnumerator enumerator, Guid container)
+        {
+            if (enumerator.EnumAudioEndpoints(DataFlowRender, DeviceStateActive, out var collection) != 0) return null;
+            if (collection.GetCount(out int count) != 0) return null;
+
+            for (int i = 0; i < count; i++)
+            {
+                if (collection.Item(i, out var endpoint) != 0) continue;
+                if (!BelongsTo(endpoint, container)) continue;
+                if (endpoint.GetId(out string id) == 0) return id;
+            }
+            return null;
+        }
 
         // ---------- Public API ----------
 

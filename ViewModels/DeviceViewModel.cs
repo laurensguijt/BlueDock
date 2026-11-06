@@ -3,6 +3,7 @@ using System.Threading;
 using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Media;
+using BlueDock.Interop;
 using BlueDock.Services;
 
 namespace BlueDock.ViewModels
@@ -18,6 +19,9 @@ namespace BlueDock.ViewModels
         private DeviceKind _kind;
         private int? _battery;
         private ConnectAbility _ability;
+        private Guid? _containerId;
+        private bool _canUseAsOutput;
+        private bool _isAudioOutput;
         private bool _isBusy;
         private string? _message;
         private int _messageToken;
@@ -27,6 +31,7 @@ namespace BlueDock.ViewModels
             _bluetooth = bluetooth;
             Id = s.Id;
             ToggleConnectionCommand = new AsyncRelayCommand(ToggleConnectionAsync, () => CanToggle);
+            UseAsOutputCommand = new AsyncRelayCommand(UseAsOutputAsync, () => _canUseAsOutput && !_isAudioOutput);
             Update(s);
         }
 
@@ -178,6 +183,70 @@ namespace BlueDock.ViewModels
             OnPropertyChanged(nameof(StatusText));
         }
 
+        // ---------- Audio output ----------
+
+        /// <summary>Raised after this device became the output, so the others can stop claiming it.</summary>
+        public Action? OutputChanged { get; set; }
+
+        public AsyncRelayCommand UseAsOutputCommand { get; }
+
+        /// <summary>Whether sending sound here is possible at all: only for a connected speaker.</summary>
+        public bool CanUseAsOutput
+        {
+            get => _canUseAsOutput;
+            private set
+            {
+                if (!Set(ref _canUseAsOutput, value)) return;
+                UseAsOutputCommand.RaiseCanExecuteChanged();
+            }
+        }
+
+        /// <summary>Whether Windows is playing through this device right now.</summary>
+        public bool IsAudioOutput
+        {
+            get => _isAudioOutput;
+            private set
+            {
+                if (!Set(ref _isAudioOutput, value)) return;
+                UseAsOutputCommand.RaiseCanExecuteChanged();
+            }
+        }
+
+        /// <summary>
+        /// Asks Core Audio where sound is going. Enumerating endpoints is a COM round trip, so
+        /// it happens off the UI thread and only when something could have changed.
+        /// </summary>
+        public async Task RefreshAudioOutputAsync()
+        {
+            if (_containerId is not Guid container || !IsConnected)
+            {
+                CanUseAsOutput = false;
+                IsAudioOutput = false;
+                return;
+            }
+
+            var (can, isDefault) = await Task.Run(() =>
+                (CoreAudio.HasActiveRenderEndpoint(container), CoreAudio.IsDefaultRenderEndpoint(container)));
+
+            CanUseAsOutput = can;
+            IsAudioOutput = isDefault;
+        }
+
+        private async Task UseAsOutputAsync()
+        {
+            if (_containerId is not Guid container) return;
+
+            bool ok = await Task.Run(() => CoreAudio.SetDefaultRenderEndpoint(container));
+            if (!ok)
+            {
+                ShowMessage("Geluid omschakelen niet gelukt");
+                return;
+            }
+
+            IsAudioOutput = true;
+            OutputChanged?.Invoke();   // another device just stopped being the output
+        }
+
         // ---------- Display ----------
 
         public string StatusText
@@ -234,6 +303,8 @@ namespace BlueDock.ViewModels
             IsConnected = s.IsConnected;
             Battery = s.Battery;
             Ability = s.Ability;
+            _containerId = s.ContainerId;
+            _ = RefreshAudioOutputAsync();
         }
     }
 }

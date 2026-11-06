@@ -278,13 +278,23 @@ namespace BlueDock.ViewModels
         public string Version =>
             "BlueDock " + (typeof(MainViewModel).Assembly.GetName().Version?.ToString(3) ?? "");
 
+        /// <summary>
+        /// Re-reads which device Windows plays through. Called when the panel opens and after a
+        /// switch, since only one device can be the output and the others have to let go.
+        /// </summary>
+        public void RefreshAudioOutputs()
+        {
+            foreach (var device in Connected.Concat(Paired))
+                _ = device.RefreshAudioOutputAsync();
+        }
+
         // ---------- List maintenance ----------
 
         private void AddOrUpdate(DeviceSnapshot s)
         {
             if (!_byId.TryGetValue(s.Id, out var vm))
             {
-                vm = new DeviceViewModel(_bluetooth, s);
+                vm = new DeviceViewModel(_bluetooth, s) { OutputChanged = RefreshAudioOutputs };
                 _byId[s.Id] = vm;
             }
             else
