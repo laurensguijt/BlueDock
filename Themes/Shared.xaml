@@ -317,44 +317,6 @@
         </Setter>
     </Style>
 
-    <!-- Icon sized action on a device card; Content is the icon geometry -->
-    <Style x:Key="Style.CardIconButton" TargetType="Button">
-        <Setter Property="Width" Value="30" />
-        <Setter Property="Height" Value="26" />
-        <Setter Property="Cursor" Value="Hand" />
-        <Setter Property="Foreground" Value="{DynamicResource Brush.DeviceButtonForeground}" />
-        <Setter Property="Background" Value="{DynamicResource Brush.DeviceButton}" />
-        <Setter Property="BorderBrush" Value="{DynamicResource Brush.DeviceButtonBorder}" />
-        <Setter Property="FocusVisualStyle" Value="{x:Null}" />
-        <Setter Property="Template">
-            <Setter.Value>
-                <ControlTemplate TargetType="Button">
-                    <Border x:Name="Bd" Background="{TemplateBinding Background}" BorderBrush="{TemplateBinding BorderBrush}"
-                            BorderThickness="1" CornerRadius="{DynamicResource Radius.Control}">
-                        <c:TablerIcon Data="{Binding Content, RelativeSource={RelativeSource TemplatedParent}}"
-                                      IconSize="15" HorizontalAlignment="Center" VerticalAlignment="Center"
-                                      Foreground="{TemplateBinding Foreground}" />
-                    </Border>
-                    <ControlTemplate.Triggers>
-                        <Trigger Property="IsMouseOver" Value="True">
-                            <Setter TargetName="Bd" Property="Opacity" Value="0.85" />
-                        </Trigger>
-                        <Trigger Property="IsPressed" Value="True">
-                            <Setter TargetName="Bd" Property="Opacity" Value="0.7" />
-                        </Trigger>
-                        <Trigger Property="IsKeyboardFocused" Value="True">
-                            <Setter TargetName="Bd" Property="BorderBrush" Value="{DynamicResource Brush.Accent}" />
-                        </Trigger>
-                        <!-- Disabled here means "already the output", which is a state, not a fault -->
-                        <Trigger Property="IsEnabled" Value="False">
-                            <Setter Property="Opacity" Value="0.9" />
-                        </Trigger>
-                    </ControlTemplate.Triggers>
-                </ControlTemplate>
-            </Setter.Value>
-        </Setter>
-    </Style>
-
     <!-- Card that groups setting rows -->
     <Style x:Key="Style.SettingsCard" TargetType="Border">
         <Setter Property="Background" Value="{DynamicResource Brush.SettingsCard}" />

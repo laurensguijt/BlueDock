@@ -48,9 +48,6 @@ namespace BlueDock.Views
 
         public void ShowPopup()
         {
-            // Windows' default output can change behind our back, so look again on every open.
-            _vm.RefreshAudioOutputs();
-
             if (!IsVisible)
             {
                 Opacity = 0;

@@ -14,7 +14,7 @@
     <ApplicationIcon>Assets\bluedock.ico</ApplicationIcon>
     <ApplicationManifest>app.manifest</ApplicationManifest>
     <!-- Release builds get the version from the tag; this is the fallback for local builds -->
-    <Version>0.1.7</Version>
+    <Version>0.1.8</Version>
     <Product>BlueDock</Product>
     <Authors>Laurens Guijt</Authors>
     <!-- Lets the project also compile on non-Windows build machines (CI) -->

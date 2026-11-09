@@ -50,13 +50,12 @@ Windows system-tray Bluetooth popup (WPF, .NET 8). See README.md for features an
   this work; ask the person what they saw. ToastIcons renders the Tabler geometry for a
   DeviceKind to a PNG (a toast can only show an image from disk), cached in
   %AppData%\BlueDock\toast-icons. Plain WinRT, no NuGet dependency.
-- Audio output: CoreAudio.SetDefaultRenderEndpoint moves Windows' playback to a device, for
-  all three roles (console, multimedia, communications) or the switch is half done. There is no
-  supported API; IPolicyConfig is undocumented, so every slot before SetDefaultEndpoint must
-  stay declared or the vtable offset shifts. The call reports success either way, so the result
-  is confirmed by reading the default back. DeviceViewModel caches CanUseAsOutput and
-  IsAudioOutput because the lookup is a COM round trip; MainViewModel refreshes them when the
-  panel opens and after a switch, since only one device can hold it.
+- Audio routing is deliberately NOT in this app. Choosing the default playback device, and
+  switching between the hands-free and stereo profile, stays with Windows. A tray tool that
+  also steers those settings fights the operating system over them and the result behaves
+  worse than either alone. It was built once (IPolicyConfig, undocumented) and removed again
+  for that reason: do not reintroduce it, however small the change looks. CoreAudio.cs keeps
+  only what connect/disconnect needs.
 - Updates: UpdateService asks the public GitHub releases API once per start (setting
   CheckForUpdates) and offers the -setup.exe asset of a newer tag. Downloads are restricted to
   github.com and its CDN hosts, checked again after redirects, and the finished file is size

@@ -85,7 +85,7 @@ namespace BlueDock.Tests
                 "Brush.Text", "Brush.TextSecondary", "Brush.Accent", "Brush.OnAccent",
                 "Brush.WindowBackground", "Brush.WindowFallback", "Brush.DeviceButton",
                 "Template.ConnectedItem", "Template.PairedItem", "Panel.Connected", "Panel.Paired",
-                "Style.CardButton", "Style.DeviceButton", "Style.CardIconButton", "Icon.Bluetooth",
+                "Style.CardButton", "Style.DeviceButton", "Icon.Bluetooth",
             };
 
             foreach (string theme in Themes)

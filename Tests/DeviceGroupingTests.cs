@@ -142,15 +142,15 @@ namespace BlueDock.Tests
         }
 
         [Fact]
-        public void Snapshot_is_identified_by_the_group_and_carries_the_container()
+        public void Snapshot_is_identified_by_the_group_not_by_an_endpoint()
         {
+            // The UI acts on the device, so connecting has to address the group.
             var container = Guid.NewGuid();
             var snapshot = BluetoothService.BuildSnapshot(Group(
                 Endpoint("a", "x", container: container),
                 Endpoint("b", "x", le: true, container: container)));
 
             Assert.Equal("container-key", snapshot.Id);
-            Assert.Equal(container, snapshot.ContainerId);
         }
     }
 }
