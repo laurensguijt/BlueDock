@@ -3,6 +3,7 @@ using System.ComponentModel;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Input;
+using System.Windows.Threading;
 using BlueDock.Interop;
 using BlueDock.Services;
 using BlueDock.ViewModels;
@@ -16,6 +17,8 @@ namespace BlueDock.Views
         private readonly MainViewModel _vm;
         private DateTime _lastHidden = DateTime.MinValue;
         private bool _allowClose;
+        private bool _warming;
+        private bool _warmed;
 
         public PopupWindow(MainViewModel vm)
         {
@@ -25,9 +28,60 @@ namespace BlueDock.Views
 
             SourceInitialized += (s, e) => ApplyEffects();
             ThemeService.ThemeChanged += (s, e) => ApplyEffects();
-            Deactivated += (s, e) => HidePopup();
-            SizeChanged += (s, e) => Reposition();
+            Deactivated += (s, e) => { if (!_warming) HidePopup(); };
+            SizeChanged += (s, e) => { if (!_warming) Reposition(); };
             PreviewKeyDown += OnPreviewKeyDown;
+        }
+
+        /// <summary>
+        /// Pays WPF's one-off cost up front instead of on the user's first click.
+        ///
+        /// Showing the first window in a process starts the rendering stack, the font cache and
+        /// a good deal of JIT: measured at about three seconds on this machine, against twenty
+        /// milliseconds for every open after it. That is exactly the grey rectangle people see
+        /// the first time they click the tray icon. Doing it here, off screen and transparent
+        /// while nobody is waiting, makes the first real open as quick as the rest.
+        /// </summary>
+        public void PreWarm()
+        {
+            if (_warmed) return;
+            _warmed = true;
+            _warming = true;
+
+            try
+            {
+                // Never steal focus or appear anywhere a person could notice it.
+                ShowActivated = false;
+                Opacity = 0;
+                Left = -10000;
+                Top = -10000;
+
+                Show();
+                UpdateLayout();
+                // Layout alone is not enough; let the render thread produce an actual frame.
+                Dispatcher.Invoke(() => { }, DispatcherPriority.Loaded);
+
+                // The settings panel lives in this same window but is only built the first time
+                // it is shown, so it would have its own smaller stall. Build it now as well.
+                bool wasOpen = _vm.IsSettingsOpen;
+                _vm.IsSettingsOpen = true;
+                UpdateLayout();
+                _vm.IsSettingsOpen = wasOpen;
+                UpdateLayout();
+
+                Hide();
+            }
+            catch
+            {
+                // A warm-up that fails is not worth bothering anyone with; the app still works.
+            }
+            finally
+            {
+                ShowActivated = true;
+                _warming = false;
+                // The hide above must not count as "just closed" and swallow the first click.
+                _lastHidden = DateTime.MinValue;
+            }
         }
 
         /// <summary>Left click on the tray icon.</summary>

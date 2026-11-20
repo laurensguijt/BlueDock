@@ -1,6 +1,7 @@
 using System;
 using System.Threading;
 using System.Windows;
+using System.Windows.Threading;
 using BlueDock.Services;
 using BlueDock.ViewModels;
 using BlueDock.Views;
@@ -54,6 +55,10 @@ namespace BlueDock
 
             ToastService.LogRoute();
             _bluetooth.Start();
+
+            // After the tray icon exists and the watchers are going: absorb WPF's first-window
+            // cost now rather than on the first click.
+            Dispatcher.BeginInvoke(new Action(() => _popup?.PreWarm()), DispatcherPriority.ApplicationIdle);
             _ = vm.CheckForUpdateAsync();
             _ = radio.InitializeAsync();
         }

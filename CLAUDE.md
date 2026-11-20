@@ -61,6 +61,13 @@ Windows system-tray Bluetooth popup (WPF, .NET 8). See README.md for features an
   github.com and its CDN hosts, checked again after redirects, and the finished file is size
   checked. Installing over a running copy is fine; Inno closes it through the Restart Manager.
   Never offers a downgrade. Failures are silent: no network is not an error worth a dialog.
+- First open: PopupWindow.PreWarm shows the window off screen at zero opacity during startup,
+  because showing the FIRST window in a WPF process starts the rendering stack, the font cache
+  and a lot of JIT. Measured here: ~3s cold for that first window, ~455ms for the first
+  ShowPopup, ~90ms once warmed, ~25ms for every open after. Without it the user sees a grey
+  rectangle on the first click after boot. Do not remove it, and keep the _warming guard: it
+  stops Deactivated from hiding the window and SizeChanged from repositioning it mid warm-up.
+  The settings panel is warmed too, since it is only built the first time it is shown.
 - Settings: %AppData%\BlueDock\settings.json
 
 ## Tests
